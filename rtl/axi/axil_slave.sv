@@ -129,7 +129,7 @@ always_ff @( posedge S_AXI_ACLK ) begin : WRITE_DATA
 end
 
 logic imem_region;
-assign imem_wr_addr_o=awaddr_skdbuff;
+assign imem_wr_addr_o=awaddr_skdbuff-2;
 assign imem_wr_data_o = wdata_skdbuff;
 assign imem_wr_strb_o = wstrb_skdbuff;
 assign imem_region = (awaddr_skdbuff>=2);

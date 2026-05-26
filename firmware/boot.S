@@ -62,8 +62,6 @@ call main
 _hang:
     j _hang
 
-# Minimal exception handler (optional)
-# If your core supports exceptions, this prevents crashes
 .align 4
 _exception_handler:
     j _hang         # Just hang on any exception

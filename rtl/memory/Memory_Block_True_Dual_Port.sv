@@ -22,7 +22,6 @@ initial begin
         ram[i] = '0;
     data_b_o='0;
     data_a_o='0;
-    $readmemh("firmware.hex", ram);
 end
 
 integer i;

@@ -19,9 +19,6 @@ initial begin
     for(int i = 0; i < 2**ADDR_WIDTH; i++)
         ram[i] = '0;
     data_b_o='0;
-    for (int row = 0; row < 8; row++)
-        for (int col = 0; col < 8; col++)
-            ram[row][col*COL_WIDTH +: COL_WIDTH] = row + col + 1;
 end
 integer i;
 always @(posedge clk_i) begin

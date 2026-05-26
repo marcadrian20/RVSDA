@@ -11,7 +11,7 @@ module Systolic_Array #(
     input logic weight_load_en_i,
     // input logic stall,
     // output logic done_o,
-    output logic busy_o,
+    // output logic busy_o,
     input logic [DATA_WIDTH*ARRAY_SIZE-1:0] activation_i,
     input logic [DATA_WIDTH*ARRAY_SIZE-1:0] weight_i,
     output logic signed [ACC_WIDTH*ARRAY_SIZE-1:0] result_o
@@ -32,7 +32,8 @@ generate
                 .rst_n_i(rst_n_i),
                 .weight_load_en_i(weight_load_en_i),
                 .act_i((j==0)?activation_i[i*DATA_WIDTH+:DATA_WIDTH]:PE_ARR_activation_feed[i][j-1]),
-                .weight_i((i==0)?weight_i[j*DATA_WIDTH+:DATA_WIDTH]:PE_ARR_weight_feed[i-1][j]),
+                // .weight_i((i==0)?weight_i[j*DATA_WIDTH+:DATA_WIDTH]:PE_ARR_weight_feed[i-1][j]),
+                .weight_i((i==0) ? weight_i[(ARRAY_SIZE-1-j)*DATA_WIDTH +: DATA_WIDTH] : PE_ARR_weight_feed[i-1][j]),
                 .partial_sum_i((i==0)?'0:PE_ARR_partial_sum_feed[i-1][j]),
                 .partial_sum_o(PE_ARR_partial_sum_feed[i][j]),
                 .act_o(PE_ARR_activation_feed[i][j]),

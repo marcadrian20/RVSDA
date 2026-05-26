@@ -4,3 +4,5 @@ retired/
 references/
 thesis.drawio
 makefile
+*.docx
+*.drawio
