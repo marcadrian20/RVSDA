@@ -4,6 +4,7 @@ module NPU #(
     parameter ARRAY_SIZE = 8,
     parameter DATA_WIDTH = 8,
     parameter ACC_WIDTH = 32,
+    parameter BRAM_ADDR_WIDTH = 9,
     parameter C_S_AXI_DATA_WIDTH= 32,
     parameter C_S_AXI_ADDR_WIDTH=11,
     parameter C_M_AXI_DATA_WIDTH=64,
@@ -212,6 +213,7 @@ always_comb begin
             case (mem_addr)
                 SA_STATUS_REG_ADDR: mmio_datapath = status_reg;
                 LSU_STATUS_REG_ADDR: mmio_datapath = lsu_status_reg;
+                LSU_CTRL_REG_ADDR: mmio_datapath = lsu_ctrl_reg;
                 default: mmio_datapath = '0;
             endcase
         end
@@ -252,12 +254,15 @@ picorv32 #() Pico_Core(
 );
 
 
-logic [9:0] buffers_wr_addr;
-logic [8:0] output_buffer_rd_addr;
+logic [BRAM_ADDR_WIDTH:0] buffers_wr_addr;
+logic [BRAM_ADDR_WIDTH-1:0] output_buffer_rd_addr;
 logic output_buffer_rd_en;
 logic [63:0] buffers_wr_data, output_buffer_rd_data;
 logic [7:0] buffers_wr_strb;
 logic lsu_load_done,lsu_store_done,lsu_load_descriptor_fifo_full,lsu_store_descriptor_fifo_full;
+logic lsu_transfer_is_weight_reg;
+logic lsu_act_load_done;
+logic lsu_weight_load_done;
 ////////////////////////
 //BIT|| signal          
 // 0 ||load_unit_error
@@ -278,7 +283,24 @@ always_comb begin : lsu_status_signals
     lsu_store_descriptor_fifo_full = lsu_status_reg[8];
 end
 
+always_ff @(posedge clk_i) begin
+    if(!rst_n_i) begin
+        lsu_transfer_is_weight_reg <= 1'b0;
+    end else if(|buffers_wr_strb) begin
+        lsu_transfer_is_weight_reg <= buffers_wr_addr[BRAM_ADDR_WIDTH];
+    end
+end
+logic store_unit_push_token;
+logic load_unit_push_token;
+assign lsu_act_load_done = lsu_load_done &&load_unit_push_token&& !lsu_transfer_is_weight_reg;
+assign lsu_weight_load_done = lsu_load_done &&load_unit_push_token&& lsu_transfer_is_weight_reg; 
+assign lsu_store_done_token = lsu_store_done && store_unit_push_token;
+
+logic act_buffer_full, weight_buffer_full, output_buffer_full;
+logic scu_act_ready, scu_weight_ready, scu_out_ready;
+logic scu_consume_act, scu_consume_weight, scu_produce_out;
 Axi_Master_LSU #(
+    .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH),
     .C_M_AXI_DATA_WIDTH(C_M_AXI_DATA_WIDTH),
     .C_M_AXI_ADDR_WIDTH(C_M_AXI_ADDR_WIDTH),
     .C_M_AXI_ID_WIDTH(C_M_AXI_ID_WIDTH),
@@ -291,6 +313,8 @@ Axi_Master_LSU #(
     .buffers_rd_data_i(output_buffer_rd_data),
     .buffers_rd_addr_o(output_buffer_rd_addr),
     .buffers_rd_en_o(output_buffer_rd_en),
+    .load_unit_push_token_o(load_unit_push_token),
+    .store_unit_push_token_o(store_unit_push_token),
     .lsu_load_descriptor_fifo_wdata_i({mem_wdata, lsu_load_desc_lo}),
     .lsu_load_descriptor_fifo_we_i(lsu_load_desc_we),
     .lsu_store_descriptor_fifo_wdata_i({mem_wdata, lsu_store_desc_lo}),
@@ -298,6 +322,9 @@ Axi_Master_LSU #(
     .lsu_status_o(lsu_status_reg),
     .lsu_store_en_i(lsu_ctrl_reg[0]),
     .lsu_load_en_i(lsu_ctrl_reg[1]),
+    .act_buffer_full_i(act_buffer_full),
+    .weight_buffer_full_i(weight_buffer_full),
+    .output_buffer_ready_i(scu_out_ready),
     .M_AXI_ACLK(M_AXI_ACLK),
     .M_AXI_ARESETN(M_AXI_ARESETN),
     .M_AXI_AWVALID(M_AXI_AWVALID),
@@ -344,13 +371,14 @@ logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] weight_mem;
 logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] output_mem;
 logic sa_done, sa_busy;
 logic weight_mem_enb, weight_load_en, act_mem_enb, output_mem_we;
-logic [8:0] weight_addrb, act_addrb, output_addrb;
+logic [BRAM_ADDR_WIDTH-1:0] weight_addrb, act_addrb, output_addra;
 
 Memory_Block #(
-        .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE)
+        .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE),
+        .ADDR_WIDTH(BRAM_ADDR_WIDTH)
 ) Weight_Memory(
         .clk_i(clk_i), 
-        .ena_i(buffers_wr_addr[9]),
+        .ena_i(buffers_wr_addr[BRAM_ADDR_WIDTH]),
         .enb_i(weight_mem_enb),
         .wea_i(buffers_wr_strb),
         .addra_i(buffers_wr_addr),
@@ -360,10 +388,11 @@ Memory_Block #(
 );
 
 Memory_Block #(
-        .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE)
+        .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE),
+        .ADDR_WIDTH(BRAM_ADDR_WIDTH)
 ) Activation_Memory(
         .clk_i(clk_i), 
-        .ena_i(!buffers_wr_addr[9]),
+        .ena_i(!buffers_wr_addr[BRAM_ADDR_WIDTH]),
         .enb_i(act_mem_enb),
         .wea_i(buffers_wr_strb),
         .addra_i(buffers_wr_addr),
@@ -372,13 +401,14 @@ Memory_Block #(
         .data_b_o(activation_mem)
 );
 Memory_Block #(
-        .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE)
+        .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE),
+        .ADDR_WIDTH(BRAM_ADDR_WIDTH)
 ) Output_Memory(
         .clk_i(clk_i), 
         .ena_i(1'b1),
         .enb_i(output_buffer_rd_en),
         .wea_i({8{output_mem_we}}),
-        .addra_i(output_addrb),
+        .addra_i(output_addra),
         .addrb_i(output_buffer_rd_addr),
         .data_a_i(output_mem),
         .data_b_o(output_buffer_rd_data)
@@ -387,10 +417,13 @@ Memory_Block #(
 logic systolic_cmd_fifo_full,systolic_cmd_fifo_empty;
 logic systolic_cmd_fifo_fifo_we;
 assign systolic_cmd_fifo_fifo_we = mmio_write && (mem_addr == SA_CMD_DESC_HI);
+
+
 Systolic_Computation_Unit #(
     .ARRAY_SIZE(ARRAY_SIZE), 
     .DATA_WIDTH(DATA_WIDTH),
-    .ACC_WIDTH(ACC_WIDTH)
+    .ACC_WIDTH(ACC_WIDTH),
+    .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH)
 ) Systolic_Comp_Unit(
     .clk_i(clk_i), 
     .rst_n_i(rst_n_i), 
@@ -403,28 +436,36 @@ Systolic_Computation_Unit #(
     .act_mem_enb_o(act_mem_enb),
     .act_addrb_o(act_addrb),
     .activation_mem_i(activation_mem),
-    .output_addrb_o(output_addrb),
+    .output_addra_o(output_addra),
     .output_mem_we_o(output_mem_we),
     .weight_mem_i(weight_mem),
     .output_mem_o(output_mem),
+    .scu_act_ready_i(scu_act_ready),
+    .scu_weight_ready_i(scu_weight_ready),
+    .scu_consumed_act_o(scu_consume_act),
+    .scu_consumed_weight_o(scu_consume_weight),
+    .scu_produced_out_o(scu_produce_out),
     .sa_done_o(sa_done),
     .sa_busy_o(sa_busy)
 );
-// Memory_Block_TDP #(
-//         .DATA_WIDTH(32)
-// ) Unified_Memory(
-//         .clk_i(clk_i), 
-//         .ena_i(),
-//         .enb_i(),
-//         .wea_i(),
-//         .web_i(),
-//         .addra_i(),
-//         .addrb_i(),
-//         .data_a_i(),
-//         .data_a_o(activation_mem_o),
-//         .data_b_i(),
-//         .data_b_o()
-// );
+
+Sync_Unit sync_unit(
+    .clk_i(clk_i), 
+    .rst_n_i(rst_n_i),
+    .lsu_act_load_done_i(lsu_act_load_done),
+    .lsu_weight_load_done_i(lsu_weight_load_done),
+    .act_buffer_full_o(act_buffer_full),
+    .weight_buffer_full_o(weight_buffer_full),
+    .scu_consumed_act_i(scu_consume_act),
+    .scu_consumed_weight_i(scu_consume_weight),
+    .scu_produced_out_i(scu_produce_out),
+    .scu_act_ready_o(scu_act_ready),
+    .scu_weight_ready_o(scu_weight_ready),
+    .scu_store_done_i(lsu_store_done_token),
+    .scu_out_ready_o(scu_out_ready),
+    .output_buffer_full_o(output_buffer_full)
+);
+
 
 assign status_reg = {28'b0,{systolic_cmd_fifo_full,systolic_cmd_fifo_empty,sa_busy, sa_done}};
 

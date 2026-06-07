@@ -3,7 +3,8 @@
 module Systolic_Computation_Unit#(
     parameter ARRAY_SIZE = 8,
     parameter DATA_WIDTH = 8,
-    parameter ACC_WIDTH = 32
+    parameter ACC_WIDTH = 32,
+    parameter BRAM_ADDR_WIDTH = 9
 )(
     input logic clk_i,
     input logic rst_n_i,
@@ -12,14 +13,20 @@ module Systolic_Computation_Unit#(
     output logic systolic_cmd_fifo_full_o,
     output logic systolic_cmd_fifo_empty_o,
     output logic weight_mem_enb_o,
-    output logic [8:0] weight_addrb_o,
+    output logic [BRAM_ADDR_WIDTH-1:0] weight_addrb_o,
     output logic act_mem_enb_o, 
-    output logic [8:0] act_addrb_o, 
-    output logic [8:0] output_addrb_o,
+    output logic [BRAM_ADDR_WIDTH-1:0] act_addrb_o, 
+    output logic [BRAM_ADDR_WIDTH-1:0] output_addra_o,
     output logic output_mem_we_o, 
     input logic [DATA_WIDTH*ARRAY_SIZE-1:0] activation_mem_i,
     input logic [DATA_WIDTH*ARRAY_SIZE-1:0] weight_mem_i,
     output logic [DATA_WIDTH*ARRAY_SIZE-1:0] output_mem_o,
+
+    input logic scu_act_ready_i,
+    input logic scu_weight_ready_i,
+    output logic scu_consumed_act_o,
+    output logic scu_consumed_weight_o,
+    output logic scu_produced_out_o,
     output logic sa_done_o,
     output logic sa_busy_o
 );
@@ -29,7 +36,7 @@ logic signed[ACC_WIDTH*ARRAY_SIZE-1:0] systolic_output;
 logic [63:0] systolic_cmd_fifo_fifo_rdata;
 // logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] output_deskew_data;
 logic act_data_feeder_en, output_data_deskewer_en;
-FIFO  #(.DATA_WIDTH(32),
+FIFO  #(.DATA_WIDTH(64),
         .FIFO_DEPTH(4),
         .FWFT(1)
 )systolic_cmd_fifo(
@@ -55,8 +62,16 @@ Window_Shift_Buffer #(
     );
 logic quant_en, relu_en;
 logic [4:0] quant_shift_amount;
+logic [$clog2(ARRAY_SIZE)-1:0] accumulate_rd_addr;
+logic [$clog2(ARRAY_SIZE)-1:0] accumulate_wr_addr;
+logic accumulate_rd_en, accumulate_wr_en, accumulate_en;
+logic output_mem_valid;
+logic [BRAM_ADDR_WIDTH-1:0] output_addr_before_pooling;
+logic [3:0] pool_shift_amount;
+logic [1:0] pool_type;
 Systolic_Controller #(
-        .ARRAY_SIZE(ARRAY_SIZE)
+        .ARRAY_SIZE(ARRAY_SIZE),
+        .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH)
 ) systolic_controller(
         .clk_i(clk_i),
         .rst_n_i(rst_n_i),
@@ -66,22 +81,34 @@ Systolic_Controller #(
         .quant_en_o(quant_en),
         .relu_en_o(relu_en),
         .quant_shift_amount_o(quant_shift_amount),
+        .pool_type_o(pool_type),
         .act_data_feeder_en_o(act_data_feeder_en),
         .output_data_deskewer_en_o(output_data_deskewer_en),
+        .accumulate_en_o(accumulate_en),
+        .accumulate_rd_en_o(accumulate_rd_en),
+        .accumulate_wr_en_o(accumulate_wr_en),
+        .accumulate_rd_addr_o(accumulate_rd_addr),
+        .accumulate_wr_addr_o(accumulate_wr_addr),
         .weight_mem_enb_o(weight_mem_enb_o),
         .weight_load_en_o(weight_load_en),
         .act_mem_enb_o(act_mem_enb_o),
-        .output_mem_we_o(output_mem_we_o),
+        .output_mem_we_o(output_mem_valid),
         .weight_addrb_o(weight_addrb_o),
         .act_addrb_o(act_addrb_o),
-        .output_addrb_o(output_addrb_o),
+        .output_addra_o(output_addr_before_pooling),
+        .act_ready_i(scu_act_ready_i),         
+        .weight_ready_i(scu_weight_ready_i),         
+        .consumed_act_o(scu_consumed_act_o),         
+        .consumed_weight_o(scu_consumed_weight_o),         
+        .produced_out_o(scu_produced_out_o),
         .busy_o(sa_busy_o),
         .done_o(sa_done_o)
 );
 
 Systolic_Array #(
                 .ARRAY_SIZE(ARRAY_SIZE),
-                .DATA_WIDTH(DATA_WIDTH))
+                .DATA_WIDTH(DATA_WIDTH),
+                .ACC_WIDTH(ACC_WIDTH))
     systolic_array(
                 .clk_i(clk_i),
                 .rst_n_i(rst_n_i),
@@ -92,6 +119,34 @@ Systolic_Array #(
                 .weight_i(weight_mem_i),
                 .result_o(systolic_output)
     );
+logic signed [ACC_WIDTH*ARRAY_SIZE-1:0] deskew_output;
+Window_Unskew_Buffer #(
+        .ARRAY_SIZE(ARRAY_SIZE), 
+        .DATA_WIDTH(ACC_WIDTH)
+) Output_Deskewer (
+        .clk_i(clk_i), 
+        .rst_n_i(rst_n_i), 
+        .en_i(output_data_deskewer_en),
+        .data_i(systolic_output), 
+        .data_o(deskew_output)
+    );
+
+logic signed [ACC_WIDTH*ARRAY_SIZE-1:0] accumulation_buff_output;
+Accumulation_Buffer #( 
+    .ARRAY_SIZE(ARRAY_SIZE),
+    .DATA_WIDTH(ACC_WIDTH)
+)accumulation_buff(
+    .clk_i(clk_i), 
+    .rst_n_i(rst_n_i), 
+    .addra_i(accumulate_wr_addr),
+    .addrb_i(accumulate_rd_addr),
+    .we_i(accumulate_wr_en),
+    .re_i(accumulate_rd_en),
+    .accumulate_en_i(accumulate_en),
+    .data_i(deskew_output),
+    .data_o(accumulation_buff_output)
+);
+
 
 logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] quantized_data;
 genvar  i;
@@ -105,21 +160,29 @@ generate
                 .rst_n_i(rst_n_i),
                 .shift_amount_i(quant_shift_amount),
                 .relu_en_i(relu_en),
-                .data_i(systolic_output[i*ACC_WIDTH +: ACC_WIDTH]),
+                .data_i(accumulation_buff_output[i*ACC_WIDTH +: ACC_WIDTH]),
                 .quantized_data_o(quantized_data[i*DATA_WIDTH +: DATA_WIDTH])
             );
     end
 endgenerate
-
-Window_Unskew_Buffer #(
-        .ARRAY_SIZE(ARRAY_SIZE), 
-        .DATA_WIDTH(DATA_WIDTH)
-) Output_Deskewer (
+assign pool_shift_amount = '0;
+Pooling_Unit #(
+    .ARRAY_SIZE(ARRAY_SIZE),
+    .DATA_WIDTH(DATA_WIDTH),
+    .ACC_WIDTH(ACC_WIDTH),
+    .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH)
+    )pooling_unit(
         .clk_i(clk_i), 
-        .rst_n_i(rst_n_i), 
-        .en_i(output_data_deskewer_en),
+        .rst_n_i(rst_n_i),
+        .pool_shift_amount_i(pool_shift_amount),
+        .pool_type_i(pool_type),
+        .data_valid_i(output_mem_valid), 
+        .data_valid_o(output_mem_we_o),
+        .output_addr_i(output_addr_before_pooling), 
+        .output_addr_o(output_addra_o),
+        // .output_mem_we_i(), 
+        // .output_mem_we_o(),
         .data_i(quantized_data), 
-        .data_o(output_mem_o)
+        .data_o(output_mem_o) 
     );
-
 endmodule

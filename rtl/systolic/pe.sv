@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-
+(* use_dsp = "yes" *)
 module PE#(
     parameter DATA_WIDTH = 8,
     parameter ACC_WIDTH = 32

@@ -1,4 +1,5 @@
 module Axi_Load_Unit #(
+    parameter BRAM_ADDR_WIDTH = 9,
     parameter C_M_AXI_DATA_WIDTH=64,
     parameter C_M_AXI_ADDR_WIDTH=32,
     parameter C_M_AXI_ID_WIDTH=1,
@@ -10,14 +11,16 @@ module Axi_Load_Unit #(
 )
 (
     output logic [C_M_AXI_DATA_WIDTH-1:0]   buffers_wr_data_o,
-    output logic [18:0]   buffers_wr_addr_o,
+    output logic [BRAM_ADDR_WIDTH:0]   buffers_wr_addr_o,
     output logic [C_M_AXI_DATA_WIDTH/8-1:0] buffers_wr_strb_o,
 
     input logic [63:0] descriptor_i,
     input logic descriptor_queue_empty_i,
     // input logic descriptor_queue_full_i,
     output logic descriptor_queue_pop_o,
-
+    input logic act_buffer_full_i,
+    input logic weight_buffer_full_i,
+    output logic push_token_o,
     input logic en_i,
     // input logic load_unit_en_i,
     output logic done_o,
@@ -54,7 +57,7 @@ localparam BURST_SIZE = $clog2(C_M_AXI_DATA_WIDTH/8);//3'b011; // 8 bytes per tr
 localparam MAX_BURST_BEATS = 256;
 localparam LOG_MAX_BURST_BEATS = $clog2(MAX_BURST_BEATS); //log_2 of 256 which is 8 for 256 max beats
 
-logic [18:0] internal_buff_dst_addr_reg;
+logic [BRAM_ADDR_WIDTH:0] internal_buff_dst_addr_reg;
 logic [31:0] axi_mem_src_addr_reg;
 logic [12:0] transfer_len_reg;//number of beats for the transfer
 logic [7:0] burst_len;
@@ -66,12 +69,17 @@ logic unit_ready;
 logic busy, done, error;
 logic transfer_finished;
 logic zero_transfer_len_flag;
+logic is_weight_route;
+logic buffer_stall;
 //////////////DESCRIPTOR FORMAT ON LOADS///////////
 //[63         51 50             32 31          0]//
 //[TRANSFER LEN][INTERNAL DST ADDR][AXI SRC ADDR]//
 ///////////////////////////////////////////////////
 
-
+assign is_weight_route = descriptor_i[32 + BRAM_ADDR_WIDTH];
+assign buffer_stall = (is_weight_route && weight_buffer_full_i) ||
+                      (!is_weight_route && act_buffer_full_i);
+// assign descriptor_load_flag = unit_ready && !descriptor_queue_empty_i && !buffer_stall && (current_state == IDLE);
 //static AXI signals on the read side
 always_comb begin
     M_AXI_ARID = AXI_READ_ID;
@@ -129,15 +137,17 @@ always_ff @( posedge M_AXI_ACLK ) begin : DESCRIPTOR_FSM
 
         case(current_state)
             IDLE: begin  
-                    if(unit_ready && !descriptor_queue_empty_i) begin
-                        current_state <= DESCRIPTOR_LOAD;
+                    if(unit_ready && !descriptor_queue_empty_i && !buffer_stall) begin
+                        current_state <= DESCRIPTOR_LATCH;
                         descriptor_queue_pop_o <= 1'b1;
+                        descriptor_load_flag<= 1'b1;
+
                     end
             end
-            DESCRIPTOR_LOAD: begin 
-                current_state <= DESCRIPTOR_LATCH; //waiting for the data from the FIFO to drop since its not FWFT
-                descriptor_load_flag<= 1'b1;
-            end
+            // DESCRIPTOR_LOAD: begin 
+            //     current_state <= DESCRIPTOR_LATCH; //waiting for the data from the FIFO to drop since its not FWFT
+            //     descriptor_load_flag<= 1'b1;
+            // end
             DESCRIPTOR_LATCH:begin
                 if(busy||zero_transfer_len_flag)
                     current_state <= IDLE;
@@ -219,7 +229,7 @@ always_ff @( posedge M_AXI_ACLK ) begin : INTERNAL_SCRATCH_ADDR_GEN
     end else 
     begin
         if(descriptor_load_flag) begin
-            internal_buff_dst_addr_reg <= descriptor_i[50:32];    
+            internal_buff_dst_addr_reg <= descriptor_i[49:32];    
         end
         else if(M_AXI_RVALID && M_AXI_RREADY) begin
             internal_buff_dst_addr_reg <= internal_buff_dst_addr_reg + 1'b1; //increment the address for the dst buffer    
@@ -234,4 +244,18 @@ always_comb begin : ScratchpadMapping
     buffers_wr_strb_o = {(C_M_AXI_DATA_WIDTH/8){M_AXI_RVALID & M_AXI_RREADY}}; //#TODO make fix for unaligned writes, for now
                                                                                // this works all bytes, only aligned reads from axi
 end
+
+
+logic push_token_reg;
+
+always_ff @(posedge M_AXI_ACLK) begin
+    if (!M_AXI_ARESETN) begin
+        push_token_reg <= 1'b0;
+    end else if (descriptor_load_flag) begin
+        push_token_reg <= descriptor_i[50];
+    end
+end
+
+assign push_token_o = push_token_reg;
+
 endmodule

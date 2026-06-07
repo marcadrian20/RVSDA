@@ -24,7 +24,7 @@ logic signed [ACC_WIDTH-1 : 0] scaled_data_reg;
             scaled_data_reg <= data_i >>> shift_amount_i;
         end
     end
-logic signed [ACC_WIDTH-1:0] clamped_data;
+logic signed [DATA_WIDTH-1:0] clamped_data;
     always_comb begin : CLAMP_ACTIVATE
         if(scaled_data_reg > MAX_VAL) begin
             clamped_data = MAX_VAL;

@@ -1,4 +1,5 @@
 module Axi_Master_LSU #(
+    parameter BRAM_ADDR_WIDTH = 9,
     parameter C_M_AXI_DATA_WIDTH=64,
     parameter C_M_AXI_ADDR_WIDTH=32,
     parameter C_M_AXI_ID_WIDTH=1,
@@ -10,11 +11,11 @@ module Axi_Master_LSU #(
 )
 (
     output logic [C_M_AXI_DATA_WIDTH-1:0]   buffers_wr_data_o,
-    output logic [VALID_ADDR_WIDTH-1:0]   buffers_wr_addr_o,
+    output logic [BRAM_ADDR_WIDTH:0]   buffers_wr_addr_o,
     output logic [C_M_AXI_DATA_WIDTH/8-1:0] buffers_wr_strb_o,
 
     input logic [C_M_AXI_DATA_WIDTH-1:0]   buffers_rd_data_i,
-    output logic [VALID_ADDR_WIDTH-1:0]   buffers_rd_addr_o,
+    output logic [BRAM_ADDR_WIDTH-1:0]   buffers_rd_addr_o,
     output logic buffers_rd_en_o,
     
 
@@ -25,6 +26,13 @@ module Axi_Master_LSU #(
     output logic [9:0] lsu_status_o,
     input logic lsu_store_en_i,
     input logic lsu_load_en_i,
+
+    input logic act_buffer_full_i,
+    input logic weight_buffer_full_i,
+    input logic output_buffer_ready_i,
+
+    output logic load_unit_push_token_o,
+    output logic store_unit_push_token_o,
     // output logic                            imem_wr_en_o,
     // output logic [31:0]                     ctrl_reg_o,
     // input logic [31:0]                      status_reg_i,
@@ -81,7 +89,8 @@ logic [63:0] lsu_load_descriptor_fifo_rdata;
 logic [63:0] lsu_store_descriptor_fifo_rdata;
 logic lsu_load_descriptor_fifo_re, lsu_load_descriptor_fifo_empty;
 FIFO  #(.DATA_WIDTH(64),
-        .FIFO_DEPTH(4)
+        .FIFO_DEPTH(4),
+        .FWFT(1)
     )lsu_load_descriptor_fifo(
             .clk_i(M_AXI_ACLK),
             .rst_n_i(M_AXI_ARESETN),
@@ -95,6 +104,7 @@ FIFO  #(.DATA_WIDTH(64),
 logic load_unit_busy, load_unit_done, load_unit_error;
 
 Axi_Load_Unit #(
+    .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH),
     .C_M_AXI_DATA_WIDTH(C_M_AXI_DATA_WIDTH),
     .C_M_AXI_ADDR_WIDTH(C_M_AXI_ADDR_WIDTH),
     .C_M_AXI_ID_WIDTH(C_M_AXI_ID_WIDTH),
@@ -106,6 +116,9 @@ Axi_Load_Unit #(
     .descriptor_i(lsu_load_descriptor_fifo_rdata),
     .descriptor_queue_empty_i(lsu_load_descriptor_fifo_empty),
     .descriptor_queue_pop_o(lsu_load_descriptor_fifo_re),
+    .act_buffer_full_i(act_buffer_full_i),
+    .weight_buffer_full_i(weight_buffer_full_i),
+    .push_token_o(load_unit_push_token_o),
     .en_i(lsu_load_en_i),
     .busy_o(load_unit_busy),
     .done_o(load_unit_done),
@@ -133,7 +146,8 @@ Axi_Load_Unit #(
 
 
 FIFO  #(.DATA_WIDTH(64),
-        .FIFO_DEPTH(4)
+        .FIFO_DEPTH(4),
+        .FWFT(1)
     )lsu_store_descriptor_fifo(
             .clk_i(M_AXI_ACLK),
             .rst_n_i(M_AXI_ARESETN),
@@ -143,20 +157,23 @@ FIFO  #(.DATA_WIDTH(64),
             .full_o(lsu_store_descriptor_fifo_full),
             .empty_o(lsu_store_descriptor_fifo_empty),
             .rdata_o(lsu_store_descriptor_fifo_rdata)    
-        );
+    );
 logic store_unit_busy, store_unit_done, store_unit_error;
 Axi_Store_Unit #(
+    .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH),
     .C_M_AXI_DATA_WIDTH(C_M_AXI_DATA_WIDTH),
     .C_M_AXI_ADDR_WIDTH(C_M_AXI_ADDR_WIDTH),
     .C_M_AXI_ID_WIDTH(C_M_AXI_ID_WIDTH),
     .AXI_WRITE_ID(AXI_WRITE_ID)
 )  axi_store_unit(
     .output_buffer_rd_data_i(buffers_rd_data_i),
-    .output_buffer_rd_addr_o(buffer_rd_addr_o),
+    .output_buffer_rd_addr_o(buffers_rd_addr_o),
     .output_buffer_rd_en_o(buffers_rd_en_o),
     .descriptor_i(lsu_store_descriptor_fifo_rdata),
     .descriptor_queue_empty_i(lsu_store_descriptor_fifo_empty),
     .descriptor_queue_pop_o(lsu_store_descriptor_fifo_re),
+    .output_buffer_ready_i(output_buffer_ready_i),
+    .push_token_o(store_unit_push_token_o),
     .en_i(lsu_store_en_i),
     .busy_o(store_unit_busy),
     .done_o(store_unit_done),

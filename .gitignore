@@ -6,3 +6,4 @@ thesis.drawio
 makefile
 *.docx
 *.drawio
+firmware/firmware.*
