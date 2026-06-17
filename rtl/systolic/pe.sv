@@ -15,26 +15,21 @@ module PE#(
     output logic signed [DATA_WIDTH-1:0] weight_o
 );
 
-    logic signed [DATA_WIDTH-1:0] reg_A;
-    logic signed [DATA_WIDTH-1:0] reg_B;
+    logic signed [DATA_WIDTH-1:0] reg_act;
+    logic signed [DATA_WIDTH-1:0] reg_weight;
     logic signed [ACC_WIDTH-1:0] accumulator;
 
-    // initial begin
-    //     reg_A=0;
-    //     reg_B=0;
-    //     accumulator=0;
-    // end
     always_ff @( posedge clk_i ) begin
         if(!rst_n_i) begin
-            {reg_A,reg_B,accumulator}<='0;
+            {reg_act,reg_weight,accumulator}<='0;
         end else begin
-            reg_A<=act_i;
+            reg_act<=act_i;
             if(weight_load_en_i)
-                reg_B<=weight_i;
-            accumulator<=act_i*reg_B+partial_sum_i;
+                reg_weight<=weight_i;
+            accumulator<=act_i*reg_weight+partial_sum_i;
         end
     end
-    assign act_o=reg_A;
-    assign weight_o=reg_B;
+    assign act_o=reg_act;
+    assign weight_o=reg_weight;
     assign partial_sum_o=accumulator;
 endmodule

@@ -22,11 +22,13 @@ generate
             logic signed [DATA_WIDTH-1:0] buffer[0:i-1];
             always_ff @(posedge clk_i) begin
                 if(!rst_n_i) begin
-                    for(int j=0;j<i;j++) buffer[j]<='0;
+                    for(int j=0; j<i; j++) 
+                        buffer[j]<='0;
                 end else begin
                     if(en_i) begin
                         buffer[0] <= data_i[i*DATA_WIDTH +: DATA_WIDTH];
-                        for(int j=1;j<i;j++) buffer[j]<=buffer[j-1];
+                        for(int j=1; j<i; j++) 
+                            buffer[j]<=buffer[j-1];
                     end                
                 end
             end

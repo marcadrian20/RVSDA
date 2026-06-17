@@ -39,7 +39,7 @@ module Sync_Unit #()(
         .count_o()
     );
 
-    Credit_Counter #(.MAX_CREDITS(32)) output_side_counter (
+    Credit_Counter #(.MAX_CREDITS(128)) output_side_counter (
         .clk_i(clk_i),
         .rst_n_i(rst_n_i),
         .inc_credit_i(scu_produced_out_i),

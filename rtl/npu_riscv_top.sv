@@ -6,12 +6,13 @@ module NPU #(
     parameter ACC_WIDTH = 32,
     parameter BRAM_ADDR_WIDTH = 9,
     parameter C_S_AXI_DATA_WIDTH= 32,
-    parameter C_S_AXI_ADDR_WIDTH=11,
+    parameter IMEM_ADDR_WIDTH = 11,
     parameter C_M_AXI_DATA_WIDTH=64,
     parameter C_M_AXI_ADDR_WIDTH=32,
     parameter C_M_AXI_ID_WIDTH=1,
     parameter	[C_M_AXI_ID_WIDTH-1:0]	AXI_READ_ID = 0,
-	parameter	[C_M_AXI_ID_WIDTH-1:0]	AXI_WRITE_ID = 0
+	parameter	[C_M_AXI_ID_WIDTH-1:0]	AXI_WRITE_ID = 0,
+    parameter  C_S_AXI_ADDR_WIDTH = $clog2(C_S_AXI_DATA_WIDTH/8) + IMEM_ADDR_WIDTH
 )
 (   
     input logic                             S_AXI_ACLK,
@@ -95,17 +96,16 @@ always_comb begin
     rst_n_i=S_AXI_ARESETN;
 end
 
-localparam ADDRLSB = $clog2(C_S_AXI_DATA_WIDTH/8);
-localparam VALID_ADDR_WIDTH = C_S_AXI_ADDR_WIDTH - ADDRLSB;
+// localparam IMEM_ADDR_WIDTH = C_S_AXI_ADDR_WIDTH - ADDRLSB;
 
 
 logic [C_S_AXI_DATA_WIDTH-1:0]   imem_wr_data_o;
-logic [VALID_ADDR_WIDTH-1:0]   imem_wr_addr_o;
+logic [IMEM_ADDR_WIDTH-1:0]   imem_wr_addr_o;
 logic [C_S_AXI_DATA_WIDTH/8-1:0] imem_wr_strb_o;
 logic                            imem_wr_en_o;
 logic [31:0]                     ctrl_reg;
 logic [31:0]                      status_reg;
-
+(* mark_debug = "true" *)logic [31:0]                    axi_ddr_base_reg;
 
 Axil_Slave #(
     .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
@@ -117,6 +117,7 @@ Axil_Slave #(
     .imem_wr_en_o(imem_wr_en_o),
     .ctrl_reg_o(ctrl_reg),
     .status_reg_i(status_reg),
+    .ddr_base_reg_o(axi_ddr_base_reg),
     .S_AXI_ACLK(S_AXI_ACLK),
     .S_AXI_ARESETN(S_AXI_ARESETN),
     .S_AXI_AWVALID(S_AXI_AWVALID),
@@ -159,17 +160,18 @@ logic [31:0] sa_cmd_desc_lo;
 logic [31:0] lsu_load_desc_lo, lsu_store_desc_lo;
 logic [31:0] lsu_ctrl_reg;
 logic [9:0] lsu_status_reg;
-localparam SA_CTRL_REG_ADDR = 'h800;
-localparam SA_STATUS_REG_ADDR = 'h804;
-localparam SA_CMD_DESC_LO = 'h808;
-localparam SA_CMD_DESC_HI = 'h80C;
-localparam LSU_CTRL_REG_ADDR = 'h810;
-localparam LSU_STATUS_REG_ADDR = 'h814; 
-localparam LSU_LOAD_DESC_LO = 'h818;
-localparam LSU_LOAD_DESC_HI = 'h81C;
-localparam LSU_STORE_DESC_LO = 'h820;
-localparam LSU_STORE_DESC_HI = 'h824;
-
+localparam MMIO_BASE= 1 << C_S_AXI_ADDR_WIDTH;
+localparam SA_CTRL_REG_ADDR = MMIO_BASE + 'h000;
+localparam SA_STATUS_REG_ADDR = MMIO_BASE + 'h004;
+localparam SA_CMD_DESC_LO = MMIO_BASE + 'h008;
+localparam SA_CMD_DESC_HI = MMIO_BASE + 'h00C;
+localparam LSU_CTRL_REG_ADDR = MMIO_BASE + 'h010;
+localparam LSU_STATUS_REG_ADDR = MMIO_BASE + 'h014; 
+localparam LSU_LOAD_DESC_LO = MMIO_BASE + 'h018;
+localparam LSU_LOAD_DESC_HI = MMIO_BASE + 'h01C;
+localparam LSU_STORE_DESC_LO = MMIO_BASE + 'h020;
+localparam LSU_STORE_DESC_HI = MMIO_BASE + 'h024;
+localparam NPU_DDR_BASE_REG_ADDR = MMIO_BASE + 'h028;
 // localparam WEIGHT_DDR_BASE_REG_ADDR = 'h204;
 // localparam ACT_DDR_BASE_REG_ADDR = 'h208;
 // localparam OUTPUT_DDR_BASE_REG_ADDR = 'h212;
@@ -214,6 +216,7 @@ always_comb begin
                 SA_STATUS_REG_ADDR: mmio_datapath = status_reg;
                 LSU_STATUS_REG_ADDR: mmio_datapath = lsu_status_reg;
                 LSU_CTRL_REG_ADDR: mmio_datapath = lsu_ctrl_reg;
+                NPU_DDR_BASE_REG_ADDR: mmio_datapath = axi_ddr_base_reg;
                 default: mmio_datapath = '0;
             endcase
         end
@@ -225,7 +228,9 @@ assign mem_rdata = imem_sel? imem_data_o : mmio_datapath;
 logic [C_S_AXI_DATA_WIDTH-1:0] imem_bank_a_unused_o;
 
 Memory_Block_TDP #(
-        .DATA_WIDTH(32)
+        .DATA_WIDTH(32),
+        .ADDR_WIDTH(IMEM_ADDR_WIDTH)
+
 ) Instruction_Memory(
         .clk_i(clk_i), 
         .ena_i(imem_wr_en_o),
@@ -240,7 +245,11 @@ Memory_Block_TDP #(
         .data_b_o(imem_data_o)
 );
 
-picorv32 #() Pico_Core(
+picorv32 #(
+    .ENABLE_DIV(1),
+    .ENABLE_MUL(1),
+    .BARREL_SHIFTER(1)
+) Pico_Core(
     .clk(clk_i),
     .resetn(rst_n_i & ctrl_reg[0]),
     .trap(trap),
@@ -255,11 +264,13 @@ picorv32 #() Pico_Core(
 
 
 logic [BRAM_ADDR_WIDTH:0] buffers_wr_addr;
-logic [BRAM_ADDR_WIDTH-1:0] output_buffer_rd_addr;
-logic output_buffer_rd_en;
-logic [63:0] buffers_wr_data, output_buffer_rd_data;
+(* mark_debug = "true" *)logic [BRAM_ADDR_WIDTH-1:0] output_buffer_rd_addr;
+(* mark_debug = "true" *) logic output_buffer_rd_en;
+logic [63:0] buffers_wr_data;
+(* mark_debug = "true" *) logic [63:0] output_buffer_rd_data;
 logic [7:0] buffers_wr_strb;
-logic lsu_load_done,lsu_store_done,lsu_load_descriptor_fifo_full,lsu_store_descriptor_fifo_full;
+logic lsu_load_done,lsu_load_descriptor_fifo_full,lsu_store_descriptor_fifo_full;
+(* mark_debug = "true" *) logic lsu_store_done; 
 logic lsu_transfer_is_weight_reg;
 logic lsu_act_load_done;
 logic lsu_weight_load_done;
@@ -297,8 +308,8 @@ assign lsu_weight_load_done = lsu_load_done &&load_unit_push_token&& lsu_transfe
 assign lsu_store_done_token = lsu_store_done && store_unit_push_token;
 
 logic act_buffer_full, weight_buffer_full, output_buffer_full;
-logic scu_act_ready, scu_weight_ready, scu_out_ready;
-logic scu_consume_act, scu_consume_weight, scu_produce_out;
+(* mark_debug = "true" *) logic scu_act_ready, scu_weight_ready, scu_out_ready;
+(* mark_debug = "true" *) logic scu_consume_act, scu_consume_weight, scu_produce_out;
 Axi_Master_LSU #(
     .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH),
     .C_M_AXI_DATA_WIDTH(C_M_AXI_DATA_WIDTH),
@@ -368,10 +379,12 @@ Axi_Master_LSU #(
 );
 logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] activation_mem;
 logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] weight_mem;
-logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] output_mem;
+(* mark_debug = "true" *) logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] output_mem;
 logic sa_done, sa_busy;
-logic weight_mem_enb, weight_load_en, act_mem_enb, output_mem_we;
-logic [BRAM_ADDR_WIDTH-1:0] weight_addrb, act_addrb, output_addra;
+logic weight_mem_enb, weight_load_en, act_mem_enb;
+(* mark_debug = "true" *)logic output_mem_we;
+logic [BRAM_ADDR_WIDTH-1:0] weight_addrb, act_addrb; 
+(* mark_debug = "true" *) logic [BRAM_ADDR_WIDTH-1:0] output_addra;
 
 Memory_Block #(
         .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE),

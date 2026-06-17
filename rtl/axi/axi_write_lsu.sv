@@ -56,8 +56,8 @@ localparam INCR_MODE = 2'b01;
 localparam OKAY_RESPONSE = 2'b00;
 localparam MAX_BURST_BEATS = 256;
 
-logic [BRAM_ADDR_WIDTH-1:0] internal_buff_src_addr_reg;
-logic [31:0] axi_mem_dst_addr_reg;
+(* mark_debug = "true" *)logic [BRAM_ADDR_WIDTH-1:0] internal_buff_src_addr_reg;
+(* mark_debug = "true" *)logic [31:0] axi_mem_dst_addr_reg;
 logic [12:0] transfer_len_reg;
 logic [7:0] burst_len;
 logic [12:0] outstanding_writes_counter;
@@ -67,7 +67,7 @@ logic unit_ready;
 logic busy, done, error;
 logic transfer_finished;
 logic zero_transfer_len_flag;
-logic buffer_stall;
+(* mark_debug = "true" *)logic buffer_stall;
 
 assign buffer_stall = !output_buffer_ready_i;
 // Static AXI mappings
@@ -219,8 +219,8 @@ FIFO  #(.DATA_WIDTH(8), .FIFO_DEPTH(4), .FWFT(1)) burst_len_tracking_fifo (
 logic                        internal_wvalid;
 logic                        internal_wready;
 logic [C_M_AXI_DATA_WIDTH:0] internal_wpayload; 
-logic                        skid_out_valid;
-logic [C_M_AXI_DATA_WIDTH:0] skid_out_payload;
+(* mark_debug = "true" *)logic                        skid_out_valid;
+(* mark_debug = "true" *)logic [C_M_AXI_DATA_WIDTH:0] skid_out_payload;
 
 Skid_Buffer #(.DATA_WIDTH(C_M_AXI_DATA_WIDTH + 1), .CIRCULAR_BUFFER(0)) w_channel_skid_buf (
     .clk_i         (M_AXI_ACLK),
@@ -235,35 +235,45 @@ Skid_Buffer #(.DATA_WIDTH(C_M_AXI_DATA_WIDTH + 1), .CIRCULAR_BUFFER(0)) w_channe
 
 assign M_AXI_WVALID = skid_out_valid;
 assign M_AXI_WDATA  = skid_out_payload[C_M_AXI_DATA_WIDTH-1:0];
-assign M_AXI_WLAST  = skid_out_payload[C_M_AXI_DATA_WIDTH];
+assign M_AXI_WLAST  = skid_out_payload[C_M_AXI_DATA_WIDTH] && M_AXI_WVALID;
 
 logic burst_active;
 
 // Handshaking flow control: Keep read window un-gated during counter lifetime
-assign output_buffer_rd_en_o = (burst_active || !burst_len_tracking_fifo_empty) && (!internal_wvalid || internal_wready);
+// assign output_buffer_rd_en_o = (burst_active || !burst_len_tracking_fifo_empty) && (!internal_wvalid || internal_wready);
+logic start_next_burst;
+
+assign start_next_burst =
+    !burst_active &&
+    !burst_len_tracking_fifo_empty &&
+    !internal_wvalid &&
+    !bram_data_valid;
+assign output_buffer_rd_en_o =
+    (burst_active || start_next_burst) &&
+    (!internal_wvalid || internal_wready);
 assign burst_len_tracking_fifo_pop = output_buffer_rd_en_o && (burst_active ? (beat_counter == 0) : (burst_len_tracking_fifo_rdata == 0));
 
 // Beat Tracking FSM / Counter Logic
-always_ff @(posedge M_AXI_ACLK) begin : BEAT_COUNTER
+always_ff @(posedge M_AXI_ACLK) begin
     if (!M_AXI_ARESETN) begin
-        beat_counter <= '0;
-        burst_active <= 1'b0;
-    end else begin
-        if (output_buffer_rd_en_o) begin
-            if (!burst_active) begin
-                if (burst_len_tracking_fifo_rdata == 0) begin
-                    burst_active <= 1'b0; 
-                end else begin
-                    beat_counter <= {1'b0, burst_len_tracking_fifo_rdata} - 1'b1;
-                    burst_active <= 1'b1;
-                end
-            end else begin
-                if (beat_counter == 0) begin
-                    burst_active <= 1'b0; 
-                end else begin
-                    beat_counter <= beat_counter - 1'b1;
-                end
-            end
+        burst_active <= 0;
+        beat_counter <= 0;
+    end
+    else begin
+
+        if (!burst_active &&
+            !burst_len_tracking_fifo_empty &&
+            !internal_wvalid &&
+            !bram_data_valid)
+        begin
+            burst_active <= 1'b1;
+            beat_counter <= {1'b0,burst_len_tracking_fifo_rdata} - 1'b1;
+        end
+        else if (output_buffer_rd_en_o && burst_active) begin
+            if (beat_counter == 0)
+                burst_active <= 1'b0;
+            else
+                beat_counter <= beat_counter - 1'b1;
         end
     end
 end

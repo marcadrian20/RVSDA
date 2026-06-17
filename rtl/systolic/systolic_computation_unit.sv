@@ -37,7 +37,7 @@ logic [63:0] systolic_cmd_fifo_fifo_rdata;
 // logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] output_deskew_data;
 logic act_data_feeder_en, output_data_deskewer_en;
 FIFO  #(.DATA_WIDTH(64),
-        .FIFO_DEPTH(4),
+        .FIFO_DEPTH(8),
         .FWFT(1)
 )systolic_cmd_fifo(
             .clk_i(clk_i),
@@ -62,6 +62,7 @@ Window_Shift_Buffer #(
     );
 logic quant_en, relu_en;
 logic [4:0] quant_shift_amount;
+logic signed [31:0] quant_mult;
 logic [$clog2(ARRAY_SIZE)-1:0] accumulate_rd_addr;
 logic [$clog2(ARRAY_SIZE)-1:0] accumulate_wr_addr;
 logic accumulate_rd_en, accumulate_wr_en, accumulate_en;
@@ -69,6 +70,11 @@ logic output_mem_valid;
 logic [BRAM_ADDR_WIDTH-1:0] output_addr_before_pooling;
 logic [3:0] pool_shift_amount;
 logic [1:0] pool_type;
+logic [11:0] pool_feature_width;
+logic [11:0] pool_feature_height;
+logic [23:0] pool_valid_pixels;
+
+logic pool_cfg_valid;
 Systolic_Controller #(
         .ARRAY_SIZE(ARRAY_SIZE),
         .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH)
@@ -81,7 +87,12 @@ Systolic_Controller #(
         .quant_en_o(quant_en),
         .relu_en_o(relu_en),
         .quant_shift_amount_o(quant_shift_amount),
+        .quant_mult_o(quant_mult),
         .pool_type_o(pool_type),
+        .pool_feature_width_o(pool_feature_width),
+        .pool_feature_height_o(pool_feature_height),
+        .pool_valid_pixels_o(pool_valid_pixels),
+        .pool_cfg_valid_o(pool_cfg_valid),
         .act_data_feeder_en_o(act_data_feeder_en),
         .output_data_deskewer_en_o(output_data_deskewer_en),
         .accumulate_en_o(accumulate_en),
@@ -158,6 +169,7 @@ generate
             )quant_unit(
                 .clk_i(clk_i),
                 .rst_n_i(rst_n_i),
+                .quant_mult_i(quant_mult),
                 .shift_amount_i(quant_shift_amount),
                 .relu_en_i(relu_en),
                 .data_i(accumulation_buff_output[i*ACC_WIDTH +: ACC_WIDTH]),
@@ -176,6 +188,10 @@ Pooling_Unit #(
         .rst_n_i(rst_n_i),
         .pool_shift_amount_i(pool_shift_amount),
         .pool_type_i(pool_type),
+        .feature_width_i(pool_feature_width),
+        .feature_height_i(pool_feature_height),
+        .valid_pixels_i(pool_valid_pixels),
+        .pool_cfg_valid_i(pool_cfg_valid),
         .data_valid_i(output_mem_valid), 
         .data_valid_o(output_mem_we_o),
         .output_addr_i(output_addr_before_pooling), 

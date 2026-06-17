@@ -26,12 +26,13 @@ module NPU_wrapper #(
     parameter DATA_WIDTH = 8,
     parameter ACC_WIDTH = 32,
     parameter C_S_AXI_DATA_WIDTH= 32,
-    parameter C_S_AXI_ADDR_WIDTH=11,
+    parameter IMEM_ADDR_WIDTH = 11,
     parameter C_M_AXI_DATA_WIDTH=64,
     parameter C_M_AXI_ADDR_WIDTH=32,
     parameter C_M_AXI_ID_WIDTH=1,
     parameter	[C_M_AXI_ID_WIDTH-1:0]	AXI_READ_ID = 0,
-	parameter	[C_M_AXI_ID_WIDTH-1:0]	AXI_WRITE_ID = 0
+	parameter	[C_M_AXI_ID_WIDTH-1:0]	AXI_WRITE_ID = 0,
+	parameter  C_S_AXI_ADDR_WIDTH = $clog2(C_S_AXI_DATA_WIDTH/8) + IMEM_ADDR_WIDTH
 )
 (   
     input wire                             S_AXI_ACLK,
@@ -120,7 +121,7 @@ NPU#(
     .AXI_READ_ID(AXI_READ_ID),
     .AXI_WRITE_ID(AXI_WRITE_ID),
     .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
-    .C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)
+    .IMEM_ADDR_WIDTH(IMEM_ADDR_WIDTH)
     )
 npu(
     .S_AXI_ACLK(S_AXI_ACLK),

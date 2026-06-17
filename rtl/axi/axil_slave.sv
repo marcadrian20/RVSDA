@@ -14,7 +14,7 @@ module Axil_Slave #(
     output logic                            imem_wr_en_o,
     output logic [31:0]                     ctrl_reg_o,
     input logic [31:0]                      status_reg_i,
-
+    output logic [31:0]                     ddr_base_reg_o,
 
     input logic                             S_AXI_ACLK,
     input logic                             S_AXI_ARESETN,
@@ -50,14 +50,16 @@ module Axil_Slave #(
 ///REGISTER ADDRESSES
 localparam CTRL_REG_ADDR = 'h0;
 localparam STATUS_REG_ADDR = 'h1;
+localparam DDR_BASE_REG_ADDR = 'h2;
 // localparam IMEM_BASE_ADDR = 'h8;
 //presume Byte width is always 8
 // localparam ADDRLSB = $clog2(C_S_AXI_DATA_WIDTH/8);
 // localparam VALID_ADDR_WIDTH = C_S_AXI_ADDR_WIDTH-ADDRLSB
-
+logic [31:0] ddr_base_reg;
 logic [31:0] ctrl_reg;
 logic [31:0] status_reg;
 assign ctrl_reg_o=ctrl_reg;
+assign ddr_base_reg_o=ddr_base_reg;
 // assign status_reg=status_reg_i;
 
 logic axil_write_ready;
@@ -124,15 +126,16 @@ always_ff @( posedge S_AXI_ACLK ) begin : WRITE_DATA
     else if(axil_write_ready) begin
         case (awaddr_skdbuff)
            CTRL_REG_ADDR : ctrl_reg<= w_skdbuff_ctrl_reg;
+           DDR_BASE_REG_ADDR: ddr_base_reg <= w_skdbuff_ctrl_reg;
         endcase
     end
 end
 
 logic imem_region;
-assign imem_wr_addr_o=awaddr_skdbuff-2;
+assign imem_wr_addr_o=awaddr_skdbuff-3;
 assign imem_wr_data_o = wdata_skdbuff;
 assign imem_wr_strb_o = wstrb_skdbuff;
-assign imem_region = (awaddr_skdbuff>=2);
+assign imem_region = (awaddr_skdbuff>=3);
 assign imem_wr_en_o = axil_write_ready && imem_region;
 
 ///READ TRANSACTION///

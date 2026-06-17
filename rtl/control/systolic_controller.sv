@@ -12,7 +12,12 @@ module Systolic_Controller #(
     output logic quant_en_o,
     output logic relu_en_o,
     output logic [4:0] quant_shift_amount_o,
+    output logic signed [31:0] quant_mult_o,
     output logic [1:0] pool_type_o,
+    output logic [11:0] pool_feature_width_o,
+    output logic [11:0] pool_feature_height_o,
+    output logic [23:0] pool_valid_pixels_o,
+    output logic pool_cfg_valid_o,
     output logic act_data_feeder_en_o,
     output logic output_data_deskewer_en_o,
     output logic accumulate_en_o,
@@ -41,7 +46,7 @@ module Systolic_Controller #(
     output logic done_o
 
 );
-
+typedef enum logic[1:0] { DESC_POOL = 2'b01, DESC_SA = 2'b10, DESC_QUANT = 2'b11} desc_type_t;
 typedef enum logic[1:0] { IDLE = 2'b00, LOAD_WEIGHT = 2'b01, LOAD_ACT = 2'b10, DRAIN = 2'b11} state_t;
 state_t current_state;
 logic [4:0] counter;
@@ -53,6 +58,9 @@ logic cmd_req_weight;
 assign cmd_req_act = cmd_fifo_data_i[58]; 
 assign cmd_req_weight = cmd_fifo_data_i[57];
 
+desc_type_t desc_type;
+assign desc_type = desc_type_t'(cmd_fifo_data_i[63:62]);
+
 always_ff @( posedge clk_i ) begin : fsm_controller
     
     counter <= counter + 1'b1;
@@ -62,33 +70,48 @@ always_ff @( posedge clk_i ) begin : fsm_controller
     consumed_weight_o <= 1'b0;
     produced_out_o <= 1'b0;
 
+    pool_cfg_valid_o <= 1'b0;
     case (current_state)
             IDLE: begin
                 if(!cmd_fifo_empty_i) begin
-                    if((!cmd_req_act || act_ready_i) && (!cmd_req_weight || weight_ready_i)) begin
-                        
-                        current_state <= LOAD_WEIGHT;
-                        weight_load_en_o <= 1'b1;
-                        busy_o <= 1'b1;
-                        counter <='0;
-                        done_o<= 1'b0;
-                        weight_mem_enb_o <= 1'b1;
+                    case(desc_type)
+                    DESC_QUANT: begin
                         cmd_fifo_pop_o <= 1'b1;
-
-                        act_addrb_o <= cmd_fifo_data_i[14:0];
-                        weight_addrb_o <= cmd_fifo_data_i[29:15];
-                        output_addra_o <= cmd_fifo_data_i[44:30];
-                        quant_shift_amount_o <= cmd_fifo_data_i[49:45];
-                        quant_en_o <=  cmd_fifo_data_i[50];
-                        relu_en_o <=   cmd_fifo_data_i[51];
-                        accum_in <= cmd_fifo_data_i[52];
-                        accum_out <= cmd_fifo_data_i[53];
-                        pool_type_o <= cmd_fifo_data_i[55:54];
-
-                        push_out_token_o <= cmd_fifo_data_i[56];
-                        pop_weight_token_o <= cmd_fifo_data_i[57];
-                        pop_act_token_o <= cmd_fifo_data_i[58];
+                        quant_shift_amount_o <= cmd_fifo_data_i[61:57];
+                        quant_mult_o         <= cmd_fifo_data_i[31:0];
+                        
                     end
+                    
+                    DESC_POOL: begin
+                                cmd_fifo_pop_o <= 1'b1;
+                                pool_feature_width_o  <= cmd_fifo_data_i[61:50];
+                                pool_feature_height_o <= cmd_fifo_data_i[49:38];
+                                pool_valid_pixels_o   <= cmd_fifo_data_i[37:14];
+                                pool_cfg_valid_o <= 1'b1;
+                        end
+                    DESC_SA: if((!cmd_req_act || act_ready_i) && (!cmd_req_weight || weight_ready_i)) begin 
+                                current_state <= LOAD_WEIGHT;
+                                weight_load_en_o <= 1'b1;
+                                busy_o <= 1'b1;
+                                counter <='0;
+                                done_o<= 1'b0;
+                                weight_mem_enb_o <= 1'b1;
+                                cmd_fifo_pop_o <= 1'b1;
+
+                                act_addrb_o <= cmd_fifo_data_i[14:0];
+                                weight_addrb_o <= cmd_fifo_data_i[29:15];
+                                output_addra_o <= cmd_fifo_data_i[44:30];
+                                // quant_en_o <=  cmd_fifo_data_i[50];
+                                relu_en_o <=   cmd_fifo_data_i[51];
+                                accum_in <= cmd_fifo_data_i[52];
+                                accum_out <= cmd_fifo_data_i[53];
+                                pool_type_o <= cmd_fifo_data_i[55:54];
+
+                                push_out_token_o <= cmd_fifo_data_i[56];
+                                pop_weight_token_o <= cmd_fifo_data_i[57];
+                                pop_act_token_o <= cmd_fifo_data_i[58];
+                        end
+                    endcase
                 end
             end 
             LOAD_WEIGHT: begin
@@ -124,13 +147,13 @@ always_ff @( posedge clk_i ) begin : fsm_controller
                 end
             end
             DRAIN: begin
-                if(counter == 2) begin//account for that quantization pipeline
+                if(counter == 3) begin//account for that quantization pipeline
                     output_mem_we_o <= !accum_in;                
                 end
                 if(counter >= 1) begin//account for the bram we latency
                     accumulate_wr_addr_o <= accumulate_wr_addr_o + 1'b1; 
                 end
-                if(counter >= 3) begin//account for the bram we latency
+                if(counter >= 4) begin//account for the bram we latency
                     if(!accum_in) begin
                         output_addra_o <= output_addra_o + 1'b1;
                     end 
@@ -144,9 +167,11 @@ always_ff @( posedge clk_i ) begin : fsm_controller
                 if(counter == ARRAY_SIZE) begin
                     accumulate_wr_en_o <= 1'b0; 
                 end
-                if(counter == ARRAY_SIZE+2) begin //account now for the output deskewers pipeline
-                    current_state <= IDLE;
+                if(counter == ARRAY_SIZE+2) begin
                     output_data_deskewer_en_o <= 1'b0;
+                end
+                if(counter == ARRAY_SIZE+3) begin //account now for the output deskewers pipeline
+                    current_state <= IDLE;
                     output_mem_we_o <= 1'b0;
                     accumulate_wr_en_o <= 1'b0;
                     accumulate_rd_en_o <= 1'b0;
@@ -167,7 +192,7 @@ always_ff @( posedge clk_i ) begin : fsm_controller
         cmd_fifo_pop_o <= 1'b0;
         pool_type_o <= '0;
         {push_out_token_o, pop_weight_token_o, pop_act_token_o} <= '0;
-
+        quant_mult_o <= 32'sh7FFFFFFF;
         {consumed_act_o, consumed_weight_o, produced_out_o} <= '0;
         {accum_in, accum_out, accumulate_en_o} <='0;
         {accumulate_rd_en_o, accumulate_wr_en_o}<='0;
@@ -176,6 +201,10 @@ always_ff @( posedge clk_i ) begin : fsm_controller
         {act_addrb_o, weight_addrb_o, output_addra_o} <= '0;
         {done_o, busy_o, weight_load_en_o, act_data_feeder_en_o} <= '0;
         {output_data_deskewer_en_o, weight_mem_enb_o, act_mem_enb_o} <= '0;
+        pool_feature_width_o  <= '0;
+        pool_feature_height_o <= '0;
+        pool_valid_pixels_o   <= '0;
+        pool_cfg_valid_o      <= '0;
     end
 end
 endmodule

@@ -3,7 +3,7 @@ ENTRY(_start)
 
 MEMORY
 {
-    BRAM (rwx) : ORIGIN = 0x00000000, LENGTH = 2K
+    BRAM (rwx) : ORIGIN = 0x00000000, LENGTH = 8K
 }
 
 
@@ -41,6 +41,6 @@ SECTIONS
 /* ── Safety check ───────────────────────────────────────── *
      * Catch the case where code + data grows into the stack.    *
      * 64 bytes minimum headroom reserved for stack.             */
-    ASSERT(_end <= (_stack_top - 64),
+    ASSERT(_end <= (_stack_top - 1024),
            "BRAM overflow: code+data too large, no room for stack!")
 }

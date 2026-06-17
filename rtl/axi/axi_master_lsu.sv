@@ -89,7 +89,7 @@ logic [63:0] lsu_load_descriptor_fifo_rdata;
 logic [63:0] lsu_store_descriptor_fifo_rdata;
 logic lsu_load_descriptor_fifo_re, lsu_load_descriptor_fifo_empty;
 FIFO  #(.DATA_WIDTH(64),
-        .FIFO_DEPTH(4),
+        .FIFO_DEPTH(8),
         .FWFT(1)
     )lsu_load_descriptor_fifo(
             .clk_i(M_AXI_ACLK),
@@ -146,7 +146,7 @@ Axi_Load_Unit #(
 
 
 FIFO  #(.DATA_WIDTH(64),
-        .FIFO_DEPTH(4),
+        .FIFO_DEPTH(8),
         .FWFT(1)
     )lsu_store_descriptor_fifo(
             .clk_i(M_AXI_ACLK),

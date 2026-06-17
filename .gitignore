@@ -7,3 +7,4 @@ makefile
 *.docx
 *.drawio
 firmware/firmware.*
+*.o
