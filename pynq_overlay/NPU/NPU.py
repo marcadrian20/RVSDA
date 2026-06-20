@@ -1,6 +1,6 @@
 from pynq import DefaultIP
 import numpy as np
-
+import time
 class NPUDriver(DefaultIP):
     
     bindto = ['xilinx.com:module_ref:NPU_wrapper:1.0']
@@ -40,3 +40,31 @@ class NPUDriver(DefaultIP):
         for instr in instructions_array:
             self.write(offset, int(instr))
             offset += 4
+    def start(self):
+        self.ctrl = 3
+    def wait_done(
+        self,
+        poll_interval=0.01,
+        timeout=None
+    ):
+
+        start_time = time.time()
+
+        while True:
+
+            if self.status == 0x1:
+                return True
+
+            if (
+                timeout is not None
+                and
+                (time.time() - start_time) > timeout
+            ):
+                raise TimeoutError(
+                    "NPU execution timed out"
+                )
+
+            time.sleep(poll_interval)
+    @property
+    def done(self):
+        return self.status == 0x1

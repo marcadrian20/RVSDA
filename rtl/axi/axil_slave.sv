@@ -15,7 +15,7 @@ module Axil_Slave #(
     output logic [31:0]                     ctrl_reg_o,
     input logic [31:0]                      status_reg_i,
     output logic [31:0]                     ddr_base_reg_o,
-
+    input logic                             ctrl_read_clear_i,
     input logic                             S_AXI_ACLK,
     input logic                             S_AXI_ARESETN,
     
@@ -128,6 +128,9 @@ always_ff @( posedge S_AXI_ACLK ) begin : WRITE_DATA
            CTRL_REG_ADDR : ctrl_reg<= w_skdbuff_ctrl_reg;
            DDR_BASE_REG_ADDR: ddr_base_reg <= w_skdbuff_ctrl_reg;
         endcase
+    end
+    else if(ctrl_read_clear_i) begin
+        ctrl_reg[1] <= 1'b0;
     end
 end
 

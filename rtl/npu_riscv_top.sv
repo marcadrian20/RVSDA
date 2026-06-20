@@ -106,7 +106,8 @@ logic                            imem_wr_en_o;
 logic [31:0]                     ctrl_reg;
 logic [31:0]                      status_reg;
 (* mark_debug = "true" *)logic [31:0]                    axi_ddr_base_reg;
-
+logic ctrl_read_clear;
+assign ctrl_read_clear = mmio_read && (mem_addr == NPU_CTRL_REG_ADDR);
 Axil_Slave #(
     .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
     .C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)
@@ -118,6 +119,7 @@ Axil_Slave #(
     .ctrl_reg_o(ctrl_reg),
     .status_reg_i(status_reg),
     .ddr_base_reg_o(axi_ddr_base_reg),
+    .ctrl_read_clear_i(ctrl_read_clear),
     .S_AXI_ACLK(S_AXI_ACLK),
     .S_AXI_ARESETN(S_AXI_ARESETN),
     .S_AXI_AWVALID(S_AXI_AWVALID),
@@ -160,6 +162,7 @@ logic [31:0] sa_cmd_desc_lo;
 logic [31:0] lsu_load_desc_lo, lsu_store_desc_lo;
 logic [31:0] lsu_ctrl_reg;
 logic [9:0] lsu_status_reg;
+logic [31:0] exec_status_reg;
 localparam MMIO_BASE= 1 << C_S_AXI_ADDR_WIDTH;
 localparam SA_CTRL_REG_ADDR = MMIO_BASE + 'h000;
 localparam SA_STATUS_REG_ADDR = MMIO_BASE + 'h004;
@@ -171,7 +174,9 @@ localparam LSU_LOAD_DESC_LO = MMIO_BASE + 'h018;
 localparam LSU_LOAD_DESC_HI = MMIO_BASE + 'h01C;
 localparam LSU_STORE_DESC_LO = MMIO_BASE + 'h020;
 localparam LSU_STORE_DESC_HI = MMIO_BASE + 'h024;
-localparam NPU_DDR_BASE_REG_ADDR = MMIO_BASE + 'h028;
+localparam NPU_CTRL_REG_ADDR = MMIO_BASE + 'h028;
+localparam NPU_STATUS_REG_ADDR = MMIO_BASE + 'h02C;
+localparam NPU_DDR_BASE_REG_ADDR = MMIO_BASE + 'h030;
 // localparam WEIGHT_DDR_BASE_REG_ADDR = 'h204;
 // localparam ACT_DDR_BASE_REG_ADDR = 'h208;
 // localparam OUTPUT_DDR_BASE_REG_ADDR = 'h212;
@@ -188,7 +193,7 @@ always_ff @( posedge clk_i ) begin
         // dispatch_reg <= '0;
         sa_cmd_desc_lo <= '0;
         {lsu_load_desc_lo,lsu_store_desc_lo,lsu_ctrl_reg}<= '0;
-        // status_reg <='0;
+        status_reg <='0;
     end else begin
         // dispatch_reg<= '0;
         if(mmio_write) begin
@@ -197,6 +202,7 @@ always_ff @( posedge clk_i ) begin
                 LSU_CTRL_REG_ADDR: lsu_ctrl_reg <= mem_wdata;
                 LSU_LOAD_DESC_LO: lsu_load_desc_lo <= mem_wdata;
                 LSU_STORE_DESC_LO: lsu_store_desc_lo <= mem_wdata;
+                NPU_STATUS_REG_ADDR: status_reg <= mem_wdata;
             endcase
         end
     end
@@ -213,10 +219,12 @@ always_comb begin
     mmio_datapath = '0;
         if(mmio_read) begin
             case (mem_addr)
-                SA_STATUS_REG_ADDR: mmio_datapath = status_reg;
+                SA_STATUS_REG_ADDR: mmio_datapath = exec_status_reg;
                 LSU_STATUS_REG_ADDR: mmio_datapath = lsu_status_reg;
                 LSU_CTRL_REG_ADDR: mmio_datapath = lsu_ctrl_reg;
                 NPU_DDR_BASE_REG_ADDR: mmio_datapath = axi_ddr_base_reg;
+                NPU_STATUS_REG_ADDR: mmio_datapath = status_reg;
+                NPU_CTRL_REG_ADDR: mmio_datapath = ctrl_reg;
                 default: mmio_datapath = '0;
             endcase
         end
@@ -480,7 +488,7 @@ Sync_Unit sync_unit(
 );
 
 
-assign status_reg = {28'b0,{systolic_cmd_fifo_full,systolic_cmd_fifo_empty,sa_busy, sa_done}};
+assign exec_status_reg = {28'b0,{systolic_cmd_fifo_full,systolic_cmd_fifo_empty,sa_busy, sa_done}};
 
 
 
