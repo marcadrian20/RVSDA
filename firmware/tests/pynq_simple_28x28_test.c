@@ -26,7 +26,7 @@ int main()
         axi_ddr_base + 0x0000,   // A
         axi_ddr_base + 0x2A80,   // B
         axi_ddr_base + 0x4040,   // C output
-        28, 28, 3, 3, 1, 8, 1, 0, 1, POOL_MAX, 1895921721, 8
+        28, 28, 3, 3, 1, 8, 1, 0, 1, MAX_POOL, 1895921721, 8
     );
     mem_fence();
     

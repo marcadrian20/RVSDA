@@ -21,13 +21,18 @@ generate
         localparam int DELAY_STAGES = ARRAY_SIZE - i;        
         // Dynamically size the buffer array for this specific channel lane
         logic [DATA_WIDTH-1:0] buffer [0:DELAY_STAGES-1];   
-        
+        initial begin
+            for (int j = 0; j < DELAY_STAGES; j++)
+                buffer[j] = '0;
+        end
+
         always_ff @(posedge clk_i) begin
-            if (!rst_n_i) begin
-                for (int j = 0; j < DELAY_STAGES; j++) begin
-                    buffer[j] <= '0;
-                end
-            end else if (en_i) begin
+            // if (!rst_n_i) begin
+            //     for (int j = 0; j < DELAY_STAGES; j++) begin
+            //         buffer[j] <= '0;
+            //     end
+            // end else 
+            if (en_i) begin
                 // Clean straight-through mapping: Channel i maps directly to Lane i
                 buffer[0] <= data_i[i*DATA_WIDTH +: DATA_WIDTH];
                 

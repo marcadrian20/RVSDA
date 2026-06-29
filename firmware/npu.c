@@ -8,9 +8,9 @@ void npu_tiled_matmul(uint32_t act_bram_base, uint32_t weight_bram_base, uint32_
                       uint32_t act_axi_base, uint32_t weight_axi_base, uint32_t out_axi_base,
                       uint16_t M_dim, uint16_t N_dim, uint16_t K_dim, uint8_t relu_en, pool_type_t pool_type)
 {
-    uint8_t BRAM_TILE_STRIDE = 8;
-    uint8_t AXI_TILE_STRIDE = 0x40; // its just 64 since 64 bytes is the size in bytes for an 8x8 tile
-    uint8_t TILE_SIZE_BYTES = 64;
+    static const uint8_t BRAM_TILE_STRIDE = 8;
+    static const uint8_t AXI_TILE_STRIDE = 0x40; // its just 64 since 64 bytes is the size in bytes for an 8x8 tile
+    static const uint8_t TILE_SIZE_BYTES = 64;
 
     uint16_t m_tile_count = (M_dim + TILE_SIZE - 1) / TILE_SIZE;
     uint16_t n_tile_count = (N_dim + TILE_SIZE - 1) / TILE_SIZE;
@@ -83,16 +83,31 @@ void conv_pooled(uint32_t act_bram_base, uint32_t weight_bram_base, uint32_t out
     store_pooled_featuremap(out_bram_base, out_axi_base, pooled_pixels, pool_type);
 }
 
-void mem_fence(void)
+
+void dense_layer(uint32_t act_bram_base, uint32_t weight_bram_base, uint32_t out_bram_base,
+                 uint32_t act_axi_base, uint32_t weight_axi_base, uint32_t out_axi_base,
+                 uint16_t in_features, uint16_t out_features, uint32_t quant_mult, uint8_t shift_amount)
 {
-    while (NPU_LSU->STATUS & (1 << 7)) ;
+    
+    // uint16_t M = 1;
+    uint16_t K = in_features;
+    uint16_t N = out_features;
+
+    uint16_t M_pad = 8;//((M + TILE_SIZE - 1) / TILE_SIZE) * TILE_SIZE;
+    uint16_t N_pad = ((N + TILE_SIZE - 1) / TILE_SIZE) * TILE_SIZE;
+    uint16_t K_pad = ((K + TILE_SIZE - 1) / TILE_SIZE) * TILE_SIZE;
+    npu_quant_push_cfg(quant_mult, shift_amount);
+
+    npu_tiled_matmul(act_bram_base, weight_bram_base, out_bram_base,
+                     act_axi_base, weight_axi_base, out_axi_base,
+                     M_pad, N_pad, K_pad, 0, POOL_BYPASS);
+
 }
+
 
 void npu_init(void)
 {
     npu_lsu_enable_channel(1, 1);
-    while((NPU_SLV_AXI->CTRL & (1<<1))==0)
-        ; 
 }
 uint32_t npu_get_ddr_base(void)
 {

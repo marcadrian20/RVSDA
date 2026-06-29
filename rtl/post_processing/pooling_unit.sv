@@ -34,9 +34,9 @@ logic odd_col, odd_row;
 logic [BRAM_ADDR_WIDTH-1:0] pool_addr_reg;
 // logic [1:0] pool_type_reg;
 
-(* mark_debug = "true" *)logic [11:0] feature_width_reg;
+logic [11:0] feature_width_reg;
 logic [11:0] feature_height_reg;
-(* mark_debug = "true" *)logic [23:0] valid_pixels_reg;
+logic [23:0] valid_pixels_reg;
 
 always_ff @(posedge clk_i)
 begin
@@ -54,9 +54,9 @@ begin
     end
 end
 
-(* mark_debug = "true" *)logic [11:0] pixel_x;
-(* mark_debug = "true" *)logic [11:0] pixel_y;
-(* mark_debug = "true" *)logic [23:0] pixel_count;
+(* MAX_FANOUT = 50 *)logic [11:0] pixel_x;
+(* MAX_FANOUT = 50 *)logic [11:0] pixel_y;
+logic [23:0] pixel_count;
 
 always_ff @(posedge clk_i)
 begin

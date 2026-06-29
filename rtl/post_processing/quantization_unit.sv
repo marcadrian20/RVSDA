@@ -18,27 +18,40 @@ localparam signed [ACC_WIDTH-1:0] MAX_VAL = (1<<DATA_WIDTH-1)-1; //so basically 
 localparam signed [ACC_WIDTH-1:0] MIN_VAL = -(1<<DATA_WIDTH-1); // -128 as an lower bound,
 
 
-logic signed [(ACC_WIDTH+31)-1:0] product_reg;
+logic signed [(ACC_WIDTH+32)-1:0] product_reg;
+logic signed [31:0] quant_mult_reg;
 logic [4:0] shift_amount_reg;
-logic relu_en_reg;
+logic signed [ACC_WIDTH-1 : 0] data_i_reg;
+// logic relu_en_reg;
+initial begin
+    product_reg = '0;
+    shift_amount_reg = '0;
+    quant_mult_reg = '0;
+    data_i_reg = '0;
+
+end
+always_ff @(posedge clk_i) begin
+    quant_mult_reg <= quant_mult_i;
+    data_i_reg <= data_i;
+end
 
 //multiplies 32bit signed acc with the 32bit Multiplier
 always_ff @( posedge clk_i ) begin : MULT_PIPELINE_STAGE
-    if(!rst_n_i) begin
-            product_reg<='0;
-            shift_amount_reg<='0;
-            relu_en_reg<='0;
-        end else begin
-            product_reg <= data_i * quant_mult_i;
-            shift_amount_reg <= shift_amount_i;
-            relu_en_reg <= relu_en_i;
-        end
+    // if(!rst_n_i) begin
+    //         product_reg<='0;
+    //         shift_amount_reg<='0;
+    //         // relu_en_reg<='0;
+    //     end else begin
+     product_reg <= data_i_reg * quant_mult_reg;
+     shift_amount_reg <= shift_amount_i;
+     // relu_en_reg <= relu_en_i;
+        // end
 end
 
 
 logic [5:0] total_shift;
-logic signed [(ACC_WIDTH+31)-1:0] rounding_term;
-logic signed [(ACC_WIDTH+31)-1:0] prod_rounded;
+logic signed [(ACC_WIDTH+32)-1:0] rounding_term;
+logic signed [(ACC_WIDTH+32)-1:0] prod_rounded;
 logic signed [ACC_WIDTH-1 : 0] scaled_data_reg;
 
 always_comb begin : ROUNDING_MATH
@@ -56,15 +69,35 @@ always_comb begin : ROUNDING_MATH
     end
 end
 
+logic signed [(ACC_WIDTH+32)-1:0] rounded_reg;
+logic [5:0] total_shift_reg;
 
+initial begin
+    rounded_reg = '0;
+    total_shift_reg = '0;
+    scaled_data_reg = '0;
+end
+
+always_ff @(posedge clk_i) begin : ROUNDING_PIPELINE_STAGE
+    // if(!rst_n_i) begin
+    //     rounded_reg     <= '0;
+    //     total_shift_reg <= '0;
+    // end
+    // else begin
+    rounded_reg     <= prod_rounded;
+    total_shift_reg <= total_shift;
+    // end
+end
     always_ff @( posedge clk_i ) begin : DATA_SCALE_PIPELINE_STAGE
-        if(!rst_n_i) begin
-            scaled_data_reg<='0;
-        end else begin
-            scaled_data_reg <= $signed(prod_rounded >>> total_shift);
-        end
+        // if(!rst_n_i) begin
+        //     scaled_data_reg<='0;
+        // end else begin
+        scaled_data_reg <= $signed(rounded_reg >>> total_shift_reg);
+        // end
     end
 logic signed [DATA_WIDTH-1:0] clamped_data;
+logic signed [DATA_WIDTH-1 : 0] quantized_data;
+
     always_comb begin : CLAMP_ACTIVATE
         if(scaled_data_reg > MAX_VAL) begin
             clamped_data = MAX_VAL;
@@ -74,6 +107,9 @@ logic signed [DATA_WIDTH-1:0] clamped_data;
         end 
         else 
             clamped_data = scaled_data_reg[DATA_WIDTH-1:0];
-        quantized_data_o =(relu_en_i && clamped_data < 0)? '0 : clamped_data[DATA_WIDTH-1:0];
+         quantized_data=(relu_en_i && clamped_data < 0)? '0 : clamped_data[DATA_WIDTH-1:0];
+    end
+    always_ff @( posedge clk_i ) begin : output_reg
+        quantized_data_o <= quantized_data;
     end
 endmodule

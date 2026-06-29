@@ -105,7 +105,7 @@ logic [C_S_AXI_DATA_WIDTH/8-1:0] imem_wr_strb_o;
 logic                            imem_wr_en_o;
 logic [31:0]                     ctrl_reg;
 logic [31:0]                      status_reg;
-(* mark_debug = "true" *)logic [31:0]                    axi_ddr_base_reg;
+logic [31:0]                    axi_ddr_base_reg;
 logic ctrl_read_clear;
 assign ctrl_read_clear = mmio_read && (mem_addr == NPU_CTRL_REG_ADDR);
 Axil_Slave #(
@@ -272,13 +272,13 @@ picorv32 #(
 
 
 logic [BRAM_ADDR_WIDTH:0] buffers_wr_addr;
-(* mark_debug = "true" *)logic [BRAM_ADDR_WIDTH-1:0] output_buffer_rd_addr;
-(* mark_debug = "true" *) logic output_buffer_rd_en;
+logic [BRAM_ADDR_WIDTH-1:0] output_buffer_rd_addr;
+ logic output_buffer_rd_en;
 logic [63:0] buffers_wr_data;
-(* mark_debug = "true" *) logic [63:0] output_buffer_rd_data;
+ logic [63:0] output_buffer_rd_data;
 logic [7:0] buffers_wr_strb;
 logic lsu_load_done,lsu_load_descriptor_fifo_full,lsu_store_descriptor_fifo_full;
-(* mark_debug = "true" *) logic lsu_store_done; 
+ logic lsu_store_done; 
 logic lsu_transfer_is_weight_reg;
 logic lsu_act_load_done;
 logic lsu_weight_load_done;
@@ -316,8 +316,8 @@ assign lsu_weight_load_done = lsu_load_done &&load_unit_push_token&& lsu_transfe
 assign lsu_store_done_token = lsu_store_done && store_unit_push_token;
 
 logic act_buffer_full, weight_buffer_full, output_buffer_full;
-(* mark_debug = "true" *) logic scu_act_ready, scu_weight_ready, scu_out_ready;
-(* mark_debug = "true" *) logic scu_consume_act, scu_consume_weight, scu_produce_out;
+ logic scu_act_ready, scu_weight_ready, scu_out_ready;
+ logic scu_consume_act, scu_consume_weight, scu_produce_out;
 Axi_Master_LSU #(
     .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH),
     .C_M_AXI_DATA_WIDTH(C_M_AXI_DATA_WIDTH),
@@ -387,12 +387,12 @@ Axi_Master_LSU #(
 );
 logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] activation_mem;
 logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] weight_mem;
-(* mark_debug = "true" *) logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] output_mem;
+ logic signed[DATA_WIDTH*ARRAY_SIZE-1:0] output_mem;
 logic sa_done, sa_busy;
 logic weight_mem_enb, weight_load_en, act_mem_enb;
-(* mark_debug = "true" *)logic output_mem_we;
+logic output_mem_we;
 logic [BRAM_ADDR_WIDTH-1:0] weight_addrb, act_addrb; 
-(* mark_debug = "true" *) logic [BRAM_ADDR_WIDTH-1:0] output_addra;
+ logic [BRAM_ADDR_WIDTH-1:0] output_addra;
 
 Memory_Block #(
         .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE),
@@ -426,7 +426,7 @@ Memory_Block #(
         .ADDR_WIDTH(BRAM_ADDR_WIDTH)
 ) Output_Memory(
         .clk_i(clk_i), 
-        .ena_i(1'b1),
+        .ena_i(output_mem_we),
         .enb_i(output_buffer_rd_en),
         .wea_i({8{output_mem_we}}),
         .addra_i(output_addra),
@@ -440,12 +440,12 @@ logic systolic_cmd_fifo_fifo_we;
 assign systolic_cmd_fifo_fifo_we = mmio_write && (mem_addr == SA_CMD_DESC_HI);
 
 
-Systolic_Computation_Unit #(
+Computation_Unit #(
     .ARRAY_SIZE(ARRAY_SIZE), 
     .DATA_WIDTH(DATA_WIDTH),
     .ACC_WIDTH(ACC_WIDTH),
     .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH)
-) Systolic_Comp_Unit(
+) Comp_Unit(
     .clk_i(clk_i), 
     .rst_n_i(rst_n_i), 
     .systolic_cmd_fifo_wdata_i({mem_wdata, sa_cmd_desc_lo}),

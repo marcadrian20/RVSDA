@@ -82,7 +82,7 @@ static inline void npu_pool_push_cfg(
     NPU_SA->CMD_DESC_HI = (uint32_t)(desc >> 32);
 }
 
-static void store_pooled_featuremap(
+static inline void store_pooled_featuremap(
     uint32_t out_bram_base,
     uint32_t out_axi_base,
     uint32_t pooled_pixels,
@@ -109,7 +109,27 @@ void conv_pooled(uint32_t act_bram_base, uint32_t weight_bram_base, uint32_t out
                  uint16_t input_width, uint16_t input_height, uint16_t kernel_width,
                  uint16_t kernel_height, uint16_t in_channels, uint16_t out_channels, uint8_t stride, uint8_t pad,
                  uint8_t relu_en, pool_type_t pool_type, uint32_t quant_mult, uint8_t shift_amount);
+                 
+void dense_layer(uint32_t act_bram_base, uint32_t weight_bram_base, uint32_t out_bram_base,
+                 uint32_t act_axi_base, uint32_t weight_axi_base, uint32_t out_axi_base,
+                 uint16_t in_features, uint16_t out_features, uint32_t quant_mult, uint8_t shift_amount);
 
-void mem_fence(void);
+static inline void mem_fence(void)
+{
+    while (NPU_LSU->STATUS & (1 << 7)) ;
+}
 
+static inline void wait_start(void)
+{
+    while ((NPU_SLV_AXI->CTRL & (1 << 1)) == 0);
+}
+
+static inline void signal_done(void)
+{
+    NPU_SLV_AXI->STATUS = 1;
+}
+static inline void clear_status(void)
+{
+    NPU_SLV_AXI->STATUS = 0;
+}
 #endif

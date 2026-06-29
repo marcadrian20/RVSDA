@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module NPU_wrapper #(
+module RVSDA #(
     parameter BRAM_ADDR_WIDTH = 9,
     parameter ARRAY_SIZE = 8,
     parameter DATA_WIDTH = 8,

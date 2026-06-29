@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module Systolic_Controller #(
+module Execution_Controller #(
     parameter ARRAY_SIZE = 8,
     parameter BRAM_ADDR_WIDTH = 9
 )(
@@ -26,8 +26,8 @@ module Systolic_Controller #(
     output logic [$clog2(ARRAY_SIZE)-1:0] accumulate_rd_addr_o,
     output logic [$clog2(ARRAY_SIZE)-1:0] accumulate_wr_addr_o,
     output logic weight_mem_enb_o,
-    output logic weight_load_en_o,
-    output logic act_mem_enb_o,
+(* MAX_FANOUT = 50 *) output logic weight_load_en_o,
+ (* MAX_FANOUT = 50 *)   output logic act_mem_enb_o,
     output logic output_mem_we_o,
     output logic [BRAM_ADDR_WIDTH-1:0] weight_addrb_o,
     output logic [BRAM_ADDR_WIDTH-1:0] act_addrb_o,
@@ -129,9 +129,9 @@ always_ff @( posedge clk_i ) begin : fsm_controller
             end
             LOAD_ACT: begin
                 act_addrb_o <= act_addrb_o + 1'b1;
-                if(counter == ARRAY_SIZE) //accounting for the quantization unit
+                if(counter == ARRAY_SIZE + 1) //accounting for the quantization unit
                     output_data_deskewer_en_o <= 1'b1;
-                if(counter == ARRAY_SIZE + ARRAY_SIZE - 1 ) begin
+                if(counter == ARRAY_SIZE + ARRAY_SIZE  ) begin
                     current_state <= DRAIN;
                     consumed_act_o <= pop_act_token_o;
                     act_addrb_o <= '0;
@@ -147,13 +147,13 @@ always_ff @( posedge clk_i ) begin : fsm_controller
                 end
             end
             DRAIN: begin
-                if(counter == 3) begin//account for that quantization pipeline
+                if(counter == 6) begin//account for that quantization pipeline
                     output_mem_we_o <= !accum_in;                
                 end
-                if(counter >= 1) begin//account for the bram we latency
+                if(counter >= 2) begin//account for the bram we latency
                     accumulate_wr_addr_o <= accumulate_wr_addr_o + 1'b1; 
                 end
-                if(counter >= 4) begin//account for the bram we latency
+                if(counter >= 7) begin//account for the bram we latency
                     if(!accum_in) begin
                         output_addra_o <= output_addra_o + 1'b1;
                     end 
@@ -164,13 +164,13 @@ always_ff @( posedge clk_i ) begin : fsm_controller
                     else
                         accumulate_rd_en_o <= 1'b0;
                 end
-                if(counter == ARRAY_SIZE) begin
+                if(counter == ARRAY_SIZE+1) begin
                     accumulate_wr_en_o <= 1'b0; 
                 end
                 if(counter == ARRAY_SIZE+2) begin
                     output_data_deskewer_en_o <= 1'b0;
                 end
-                if(counter == ARRAY_SIZE+3) begin //account now for the output deskewers pipeline
+                if(counter == ARRAY_SIZE+6) begin //account now for the output deskewers pipeline
                     current_state <= IDLE;
                     output_mem_we_o <= 1'b0;
                     accumulate_wr_en_o <= 1'b0;

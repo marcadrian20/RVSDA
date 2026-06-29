@@ -6,7 +6,7 @@
 
 
 #define NPU_ACTIVATION_BASE 0x00000
-#define NPU_WEIGHT_BASE (1 << 14) // 0x200
+#define NPU_WEIGHT_BASE (1 << 12) // 0x200
 #define NPU_OUTPUT_BASE 0x00000
 // #define axi_ddr_base 0x00000000
 #define TILE_SIZE 8
@@ -30,9 +30,9 @@
 typedef enum
 {
     POOL_BYPASS = 0,
-    POOL_MAX = 1,
-    POOL_AVG = 2,
-    POOL_GLOBAL_AVG = 3
+    MAX_POOL = 1,
+    AVG_POOL = 2,
+    GLOBAL_AVG_POOL = 3
 } pool_type_t;
 
 #endif

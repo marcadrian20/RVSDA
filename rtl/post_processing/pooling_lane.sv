@@ -16,8 +16,8 @@ module Pooling_Lane #(
     input logic [11:0] pool_col_idx_i,
     // input logic output_mem_we_i,
     // output logic output_mem_we_o,
-(* mark_debug = "true" *)    input logic signed [DATA_WIDTH-1: 0] lane_data_i,
-(* mark_debug = "true" *)    output logic signed [DATA_WIDTH-1:0] lane_data_o
+    input logic signed [DATA_WIDTH-1: 0] lane_data_i,
+    output logic signed [DATA_WIDTH-1:0] lane_data_o
 
 );
 localparam BYPASS = 2'b00;
@@ -29,18 +29,19 @@ logic signed [DATA_WIDTH-1:0] line_buffer [(MAX_FEATURE_WIDTH/2)-1:0];
 logic signed [DATA_WIDTH-1:0] max_out_reg;
 // logic signed [ACC_WIDTH-1:0] avg_out_reg; 
 // logic signed [DATA_WIDTH-1:0] avg_pool_out;
-(* mark_debug = "true" *)logic odd_col, odd_row;
+logic odd_col, odd_row;
 assign odd_col = pixel_x_i[0];
 assign odd_row = pixel_y_i[0];
+
+initial begin
+    max_out_reg <= '0;
+    for(int i = 0; i < MAX_FEATURE_WIDTH/2; i++) begin
+            line_buffer[i]     <= '0;
+            // avg_line_buffer[i] <= '0;
+        end 
+end
 always_ff @( posedge clk_i ) begin
-    if (!rst_n_i) begin
-        max_out_reg <= '0;
-        // avg_out_reg <= '0;
-        for(int i = 0; i < MAX_FEATURE_WIDTH/2; i++) begin
-                line_buffer[i]     <= '0;
-                // avg_line_buffer[i] <= '0;
-            end
-    end else if(data_valid_i) begin
+    if(data_valid_i) begin
          if(!odd_row) begin
             if(!odd_col) begin
                 line_buffer[pool_col_idx_i] <= lane_data_i;

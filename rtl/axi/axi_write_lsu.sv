@@ -56,8 +56,8 @@ localparam INCR_MODE = 2'b01;
 localparam OKAY_RESPONSE = 2'b00;
 localparam MAX_BURST_BEATS = 256;
 
-(* mark_debug = "true" *)logic [BRAM_ADDR_WIDTH-1:0] internal_buff_src_addr_reg;
-(* mark_debug = "true" *)logic [31:0] axi_mem_dst_addr_reg;
+logic [BRAM_ADDR_WIDTH-1:0] internal_buff_src_addr_reg;
+logic [31:0] axi_mem_dst_addr_reg;
 logic [12:0] transfer_len_reg;
 logic [7:0] burst_len;
 logic [12:0] outstanding_writes_counter;
@@ -67,7 +67,7 @@ logic unit_ready;
 logic busy, done, error;
 logic transfer_finished;
 logic zero_transfer_len_flag;
-(* mark_debug = "true" *)logic buffer_stall;
+logic buffer_stall;
 
 assign buffer_stall = !output_buffer_ready_i;
 // Static AXI mappings
@@ -87,7 +87,7 @@ assign done_o = done;
 assign busy_o = busy;
 assign error_o = error;
 assign unit_ready = !busy && en_i && (current_state == IDLE);
-// assign start_transaction_flag = unit_ready && descriptor_load_flag && !zero_transfer_len_flag;
+//assign start_transaction_flag = unit_ready && descriptor_load_flag && !zero_transfer_len_flag;
 always_ff @(posedge M_AXI_ACLK) begin : MASTER_CTRL_STATE_SIG_GEN
     if(!M_AXI_ARESETN) begin
         {busy, done, error/*, start_transaction_flag*/} <= '0;
@@ -219,8 +219,8 @@ FIFO  #(.DATA_WIDTH(8), .FIFO_DEPTH(4), .FWFT(1)) burst_len_tracking_fifo (
 logic                        internal_wvalid;
 logic                        internal_wready;
 logic [C_M_AXI_DATA_WIDTH:0] internal_wpayload; 
-(* mark_debug = "true" *)logic                        skid_out_valid;
-(* mark_debug = "true" *)logic [C_M_AXI_DATA_WIDTH:0] skid_out_payload;
+logic                        skid_out_valid;
+logic [C_M_AXI_DATA_WIDTH:0] skid_out_payload;
 
 Skid_Buffer #(.DATA_WIDTH(C_M_AXI_DATA_WIDTH + 1), .CIRCULAR_BUFFER(0)) w_channel_skid_buf (
     .clk_i         (M_AXI_ACLK),

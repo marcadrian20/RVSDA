@@ -18,6 +18,15 @@ logic [(ARRAY_SIZE*DATA_WIDTH)-1:0] mem_out;
 logic [(ARRAY_SIZE*DATA_WIDTH)-1:0] mux_out;
 logic [(ARRAY_SIZE*DATA_WIDTH)-1:0] accumulate_out;
 
+logic accumulate_en_reg;
+
+always_ff @( posedge clk_i ) begin
+    if(!rst_n_i)
+        accumulate_en_reg <='0;
+    else
+        accumulate_en_reg <= accumulate_en_i;
+end
+
 always_comb begin : Parallel_Adder_Lanes
     for(int i = 0; i<ARRAY_SIZE;i++) begin
         mux_out[i*DATA_WIDTH +: DATA_WIDTH] = accumulate_en_i? mem_out[i*DATA_WIDTH +: DATA_WIDTH] : '0;
@@ -25,24 +34,35 @@ always_comb begin : Parallel_Adder_Lanes
     end
 end
 
+logic [(ARRAY_SIZE*DATA_WIDTH)-1:0] out_data;
+logic [(ARRAY_SIZE*DATA_WIDTH)-1:0] intermediary_data;
+initial begin
+    out_data = '0;
+    intermediary_data = '0;
+end
+
 Memory_Block #(
         .DATA_WIDTH(DATA_WIDTH*ARRAY_SIZE),
         .ADDR_WIDTH($clog2(ARRAY_SIZE))
 ) accumulation_mem(
         .clk_i(clk_i), 
-        .ena_i(1'b1),
+        .ena_i(we_i),
         .enb_i(re_i),
         .wea_i({DATA_WIDTH*ARRAY_SIZE/8{we_i}}),
         .addra_i(addra_i),
         .addrb_i(addrb_i),
-        .data_a_i(accumulate_out),
+        .data_a_i(intermediary_data),
         .data_b_o(mem_out)
 );
+
+
 always_ff @( posedge clk_i ) begin : blockName
-    if(!rst_n_i)
-        data_o <='0;
-    else
-        data_o <= accumulate_out;
+    // if(!rst_n_i)
+    //     data_o <='0;
+    // else
+    intermediary_data <= accumulate_out;
+    // out_data <= intermediary_data;
+
 end
-// assign data_o = accumulate_out; // so basically pass through if not tiling
+assign data_o = intermediary_data;
 endmodule

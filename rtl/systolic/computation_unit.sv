@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module Systolic_Computation_Unit#(
+module Computation_Unit#(
     parameter ARRAY_SIZE = 8,
     parameter DATA_WIDTH = 8,
     parameter ACC_WIDTH = 32,
@@ -75,10 +75,10 @@ logic [11:0] pool_feature_height;
 logic [23:0] pool_valid_pixels;
 
 logic pool_cfg_valid;
-Systolic_Controller #(
+Execution_Controller #(
         .ARRAY_SIZE(ARRAY_SIZE),
         .BRAM_ADDR_WIDTH(BRAM_ADDR_WIDTH)
-) systolic_controller(
+) execution_controller(
         .clk_i(clk_i),
         .rst_n_i(rst_n_i),
         .cmd_fifo_empty_i(systolic_cmd_fifo_empty_o),
