@@ -33,4 +33,4 @@ vivado_pid*.str
 .vscode/
 .DS_Store
 rtl/external_modules/*
-NPU_CLOSURE_TEST
+NPU_CLOSURE_TEST/

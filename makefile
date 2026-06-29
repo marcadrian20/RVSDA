@@ -73,9 +73,8 @@ clean:
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(XIL_DIR)
 	@rm -rf $(PROJECT_DIR)
-	@# Also remove any Vivado log files that might appear in root
 	@rm -f vivado*.log vivado*.jou
-	@echo "Clean done.
+	@echo "Clean done."
 
 help:
 	@echo "Available targets:"
