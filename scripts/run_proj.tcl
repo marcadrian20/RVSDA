@@ -18,9 +18,6 @@
 #   vivado -mode batch -source scripts/run_proj.tcl -tclargs --ARRAY_SIZE 16 --ACC_WIDTH 32
 #*****************************************************************************************
 
-# ------------------------------
-# 1. Parse arguments
-# ------------------------------
 set script_dir [file dirname [file normalize [info script]]]
 set repo_root  [file normalize "$script_dir/.."]
 
@@ -32,7 +29,9 @@ set ::BRAM_ADDR_WIDTH  12
 set ::ACC_WIDTH        24
 set skip_package       0
 set jobs               16
-
+proc is_gui_mode {} {
+    return [expr {[info exists ::rdi::mode] && $::rdi::mode == "gui"}]
+}
 if {$::argc > 0} {
     for {set i 0} {$i < $::argc} {incr i} {
         set opt [lindex $::argv $i]
@@ -43,8 +42,8 @@ if {$::argc > 0} {
                 puts "  --help                    Show this help."
                 puts "  --skip-package            Skip IP packaging."
                 puts "  --ARRAY_SIZE <n>          Default 8."
-                puts "  --DATA_WIDTH <n>          Default 32."
-                puts "  --IMEM_ADDR_WIDTH <n>     Default 10."
+                puts "  --DATA_WIDTH <n>          Default 8."
+                puts "  --IMEM_ADDR_WIDTH <n>     Default 11."
                 puts "  --BRAM_ADDR_WIDTH <n>     Default 12."
                 puts "  --ACC_WIDTH <n>           Default 24 (160 MHz), 32 (140 MHz)."
                 puts "  --jobs <n>                Number of parallel jobs (default 4)."
@@ -131,6 +130,9 @@ set bitfile "$proj_dir/${::_xil_proj_name_}.runs/impl_1/npu_bd_wrapper.bit"
 if {[file exists $bitfile]} {
     puts "INFO: Bitstream generated successfully: $bitfile"
     puts "INFO: RVSDA flow completed."
+    if {![is_gui_mode]} {
+        exit 0
+    }
 } else {
     puts "ERROR: Bitstream not found at expected location: $bitfile"
     exit 1

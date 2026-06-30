@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include "npu.h"
-#include "npu_regs.h"
+#include "../npu.h"
+#include "../npu_regs.h"
 
 int main()
 {
@@ -13,37 +13,34 @@ int main()
         NPU_WEIGHT_BASE,
         NPU_OUTPUT_BASE,
 
-        axi_ddr_base + 0x0000,   // A
-        axi_ddr_base + 0x2A80,   // B
-        axi_ddr_base + 0x2B00,   // C output
-        28, 28, 3, 3, 1, 8, 1, 0, 1, POOL_BYPASS, 1895921721, 8);
+        axi_ddr_base + 0x5500,   // A
+        axi_ddr_base + 0x0000,   // B
+        axi_ddr_base + 0x7F80,   // C output
+        28, 28, 3, 3, 1, 8, 1, 0, 1, POOL_BYPASS, 1529741541, 8);
 
 
-    conv_pooled(NPU_ACTIVATION_BASE,
-        NPU_WEIGHT_BASE,
-        NPU_OUTPUT_BASE,
+    // conv_pooled(NPU_ACTIVATION_BASE,
+    //     NPU_WEIGHT_BASE,
+    //     NPU_OUTPUT_BASE,
 
-        axi_ddr_base + 0x0000,   // A
-        axi_ddr_base + 0x2A80,   // B
-        axi_ddr_base + 0x4040,   // C output
-        28, 28, 3, 3, 1, 8, 1, 0, 1, MAX_POOL, 1895921721, 8
-    );
+    //     axi_ddr_base + 0x5500,   // A
+    //     axi_ddr_base + 0x0000,   // B
+    //     axi_ddr_base + 0x7F80,   // C output
+    //     28, 28, 3, 3, 1, 8, 1, 0, 1, MAX_POOL, 1529741541, 8
+    // );
     mem_fence();
-    
-    NPU_SLV_AXI->STATUS = 1;
-    while((NPU_SLV_AXI->CTRL & (1<<1))==0)
-        ;
-    NPU_SLV_AXI->STATUS = 0;
-
-    npu_quant_push_cfg(1291815482, 9);
+    signal_done();
+    wait_start();
+    clear_status();
+    npu_quant_push_cfg(1417290823, 10);
     npu_tiled_matmul(
         NPU_ACTIVATION_BASE,
         NPU_WEIGHT_BASE,
         NPU_OUTPUT_BASE,
 
-        axi_ddr_base + 0x0000,   // A
-        axi_ddr_base + 0x2A40,   // B
-        axi_ddr_base + 0x4040,   // C output
+        axi_ddr_base + 0x5500,   // A
+        axi_ddr_base + 0x0080,   // B
+        axi_ddr_base + 0x7F80,   // C output
 
         8,                     // M
         16,                       // N

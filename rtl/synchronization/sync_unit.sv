@@ -1,4 +1,6 @@
-module Sync_Unit #()(
+`timescale 1ns/1ps
+
+module Sync_Unit (
     input logic clk_i,
     input logic rst_n_i,
 

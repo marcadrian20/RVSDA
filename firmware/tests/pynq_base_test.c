@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include "npu.h"
-#include "npu_regs.h"
+#include "../npu.h"
+#include "../npu_regs.h"
 
 
 
@@ -11,21 +11,21 @@ void simple_matrix_mult_test(uint32_t axi_ddr_base);
 void simple_max_pool_avg_pool_test(uint32_t axi_ddr_base);
 int main()
 {
-    uint32_t axi_ddr_base = NPU_SLV_AXI->DDR_BASE_REG;//NPU_DDR_BASE_REG;
-    // start lsu
-    npu_lsu_enable_channel(1, 1);
-    while((NPU_SLV_AXI->CTRL & (1<<1))==0)
-        ;
+    uint32_t axi_ddr_base = npu_get_ddr_base();
+    npu_init();
+    wait_start();
+
     mat_mul_extensive_test(axi_ddr_base);
     npu_tiled_matmul(NPU_ACTIVATION_BASE + 32, NPU_WEIGHT_BASE + 32, NPU_OUTPUT_BASE + 32, axi_ddr_base + 0x300, axi_ddr_base + 0x400, axi_ddr_base + 0x500, 16, 16, 16, 1, POOL_BYPASS);
     npu_tiled_matmul(NPU_ACTIVATION_BASE + 32, NPU_WEIGHT_BASE + 32, NPU_OUTPUT_BASE + 32, axi_ddr_base + 0x800, axi_ddr_base + 0xA40, axi_ddr_base + 0xC80, 24, 24, 24, 1, POOL_BYPASS);
     simple_matrix_mult_test(axi_ddr_base);
 
     npu_tiled_matmul(NPU_ACTIVATION_BASE + 32, NPU_WEIGHT_BASE + 32, NPU_OUTPUT_BASE + 32, axi_ddr_base + 0x1000, axi_ddr_base + 0x1100, axi_ddr_base + 0x1200, 16, 16, 16, 1, POOL_BYPASS);
-    // npu_tiled_matmul(NPU_ACTIVATION_BASE + 32, NPU_WEIGHT_BASE + 32, NPU_OUTPUT_BASE + 32, axi_ddr_base + 0xEC0, axi_ddr_base + 0xF80, axi_ddr_base + 0x1000, 24, 16, 8, 1, POOL_BYPASS);
+    npu_tiled_matmul(NPU_ACTIVATION_BASE + 32, NPU_WEIGHT_BASE + 32, NPU_OUTPUT_BASE + 32, axi_ddr_base + 0xEC0, axi_ddr_base + 0xF80, axi_ddr_base + 0x1000, 24, 16, 8, 1, POOL_BYPASS);
 
 
-    NPU_SLV_AXI->STATUS = 1;
+    mem_fence();
+    signal_done();
 
     while (1)
         ;

@@ -1,6 +1,4 @@
 sim/
-tb/
-retired/
 references/
 thesis.drawio
 # makefile
@@ -11,7 +9,7 @@ firmware/firmware.*
 *.o
 *.hwh
 *.bit
-
+.bin
 /build/
  
 *.cache/
@@ -34,3 +32,6 @@ vivado_pid*.str
 .DS_Store
 rtl/external_modules/*
 NPU_CLOSURE_TEST/
+*.npy
+*.npz
+*.pb

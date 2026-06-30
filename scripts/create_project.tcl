@@ -58,6 +58,7 @@ puts "  FCLK0 frequency  = $fclk_mhz MHz"
 # Determine repository root from this script's location
 set script_dir [file dirname [file normalize [info script]]]
 set repo_root  [file normalize "$script_dir/.."]
+set build_dir  "$repo_root/build"
 
 # Set origin_dir to repo_root so that relative paths in the script work
 set origin_dir $repo_root
@@ -113,7 +114,7 @@ if { $validate_required } {
 }
 
 # Create project
-create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7z020clg484-1
+create_project ${_xil_proj_name_} "$build_dir/${_xil_proj_name_}" -part xc7z020clg484-1 -force
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]

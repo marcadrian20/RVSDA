@@ -1,9 +1,10 @@
 from pynq import DefaultIP
 import numpy as np
 import time
-class NPUDriver(DefaultIP):
+class RVSDADriver(DefaultIP):
     
-    bindto = ['xilinx.com:module_ref:NPU_wrapper:1.0']
+    # bindto = ['xilinx.com:module_ref:RVSDA:1.0']
+    bindto = ['marc.org:marc:RVSDA:1.0']
 
     def __init__(self, description):
         super().__init__(description)
@@ -30,7 +31,7 @@ class NPUDriver(DefaultIP):
 
     @ddr_base.setter
     def ddr_base(self, address):
-        """Set the physical DDR Base Address for the NPU."""
+        """Set the physical DDR Base Address for the RVSDA."""
         self.write(0x08, int(address))
 
     def load_instruction_memory(self, instructions_array):
@@ -61,7 +62,7 @@ class NPUDriver(DefaultIP):
                 (time.time() - start_time) > timeout
             ):
                 raise TimeoutError(
-                    "NPU execution timed out"
+                    "RVSDA execution timed out"
                 )
 
             time.sleep(poll_interval)

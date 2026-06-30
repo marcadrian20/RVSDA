@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include "npu.h"
-#include "npu_regs.h"
+#include "../npu.h"
+#include "../npu_regs.h"
 
 
 
