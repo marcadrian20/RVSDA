@@ -9,7 +9,7 @@ firmware/firmware.*
 *.o
 *.hwh
 *.bit
-.bin
+*.bin
 /build/
  
 *.cache/
