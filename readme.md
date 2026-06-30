@@ -142,7 +142,7 @@ make overlay mnist=true
 ## Running Simulations
 
 ### Firmware Simulation (Vivado)
-This simulates the whole system (Zynq PS + NPU) in Vivado’s simulator:
+This simulates the whole system (AXI VIP + NPU) in Vivado’s simulator:
 ```bash
 make sim
 ```
