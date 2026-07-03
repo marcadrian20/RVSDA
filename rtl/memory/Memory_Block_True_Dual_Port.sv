@@ -20,6 +20,7 @@ logic [DATA_WIDTH-1:0]ram[2**ADDR_WIDTH-1:0];
 initial begin
     for(int i = 0; i < 2**ADDR_WIDTH; i++)
         ram[i] = '0;
+    $readmemh("/home/marknt/Desktop/proiecte/proiecte/thesis/firmware/firmware_sim_base_operation_tests.hex", ram);    
     data_b_o='0;
     data_a_o='0;
 end

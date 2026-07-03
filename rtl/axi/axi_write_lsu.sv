@@ -120,7 +120,7 @@ always_ff @( posedge M_AXI_ACLK ) begin : DESCRIPTOR_FSM
         start_transaction_flag  <= 1'b0;
         case(current_state)
             IDLE: begin  
-                if(unit_ready && !descriptor_queue_empty_i && !buffer_stall) begin
+                if(unit_ready && !descriptor_queue_empty_i && !buffer_stall /*&& !done_o*/) begin
                     current_state <= DESCRIPTOR_LATCH;
                     descriptor_queue_pop_o <= 1'b1;
                     descriptor_load_flag<= 1'b1;

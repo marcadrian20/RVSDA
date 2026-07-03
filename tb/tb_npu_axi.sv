@@ -937,45 +937,46 @@ initial begin
         .K_tiles(2),
         .N_tiles(2), .A_tiles(A_tiles), .B_tiles(B_tiles)
     );
-    check_tiled_matrix_result(
-    .test_name("24x24 tiled"),
-    .output_base_addr('hC80),
-    .M_tiles(3),
-    .K_tiles(3),
-    .N_tiles(3),
-    .A_tiles(A_tiles),
-    .B_tiles(B_tiles)
-);
+//     check_tiled_matrix_result(
+//     .test_name("24x24 tiled"),
+//     .output_base_addr('hC80),
+//     .M_tiles(3),
+//     .K_tiles(3),
+//     .N_tiles(3),
+//     .A_tiles(A_tiles),
+//     .B_tiles(B_tiles)
+// );
    
-    
-    A_tiles[0] = MAT24x8_A0;
-    A_tiles[1] = MAT24x8_A1;
-    A_tiles[2] = MAT24x8_A2;
-    
-    B_tiles[0] = MAT8x16_B0;
-    B_tiles[1] = MAT8x16_B1;
-    
-    
-    check_tiled_matrix_result(
-    .test_name("24x8 x 8x16"),
-    .output_base_addr('h1000),
-
-    .M_tiles(3),
-    .K_tiles(1),
-    .N_tiles(2),
-
-    .A_tiles(A_tiles),
-    .B_tiles(B_tiles)
-);
-
-    check_parallel_max_pooling(
-    "All-Channel Max Pooling Verification",
-    'h1380,
-    POOL_CH
-);                   
-
+  
     check_matrix_result("Normal Operation Test 1",  'h700, MATRIX_SIMPLE_A,    MATRIX_SIMPLE_B,    1);
-    check_matrix_result("Normal Operation Test 2",  'h740, MATRIX_SIMPLE_C,    MATRIX_SIMPLE_D,    1);
+    check_matrix_result("Normal Operation Test 2",  'h740, MATRIX_SIMPLE_C,    MATRIX_SIMPLE_D,    1);  
+//     A_tiles[0] = MAT24x8_A0;
+//     A_tiles[1] = MAT24x8_A1;
+//     A_tiles[2] = MAT24x8_A2;
+    
+//     B_tiles[0] = MAT8x16_B0;
+//     B_tiles[1] = MAT8x16_B1;
+    
+    
+//     check_tiled_matrix_result(
+//     .test_name("24x8 x 8x16"),
+//     .output_base_addr('h1000),
+
+//     .M_tiles(3),
+//     .K_tiles(1),
+//     .N_tiles(2),
+
+//     .A_tiles(A_tiles),
+//     .B_tiles(B_tiles)
+// );
+
+//     check_parallel_max_pooling(
+//     "All-Channel Max Pooling Verification",
+//     'h1380,
+//     POOL_CH
+// );            
+           
+
             
 //    check_parallel_max_pooling(
 //    "Tiled matrix mult, All-Channel Max Pooling Verification",

@@ -49,6 +49,7 @@ int main()
 
     npu_lsu_push_store(64, NPU_OUTPUT_BASE + 128, axi_ddr_base + 0x1380, SIGNAL_DONE);
     npu_lsu_push_store(64, NPU_OUTPUT_BASE + 136, axi_ddr_base + 0x13C0, SIGNAL_DONE);
+    
     NPU_SLV_AXI->STATUS = 1;
 
     while (1)

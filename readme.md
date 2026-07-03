@@ -56,7 +56,8 @@ make help
 - **RISC-V GCC toolchain** (ex: `riscv64-elf-gcc`).
 ### Python (for MNIST model)
 - Python 3 with `numpy`, `tensorflow` – required only for the `mnist` target.
-
+### Host Dependencies (optional, for camera client)
+- Python 3 with `opencv-python` and `numpy` – needed to run the `camera_client.py` script to feed images from a camera to the NPU on the FPGA over Ethernet.
 ### RTL Testbenches (optional)
 - **Icarus Verilog** (`iverilog`) – for compiling and running testbenches.
 - **GTKWave** – for viewing waveform dumps (optional, `view-tb` target).
@@ -85,10 +86,15 @@ make help
 │   ├── create_sim.tcl
 │   ├── register_ip_repo.tcl
 │   └── create_project.tcl
+├── host/
+│   └── camera_client.py     # Host side scripts
 ├── models/                  # MNIST model training
 │   └── model_mnist.py
 ├── pynq/                    # PYNQ overlay output
-│   ├── notebooks/    
+│   ├── notebooks/
+│   │   ├── mnist_full_test.ipynb # mnist inference test on the full dataset
+│   │   ├── NPU_BASE_TEST.ipynb # basic operation tests for RVSDA on PYNQ
+│   │   └── rvsda_server.ipynb  # TCP server for camera inference
 │   └── overlay/RVSDA/
 │       ├── RVSDA.bit
 │       ├── RVSDA.hwh
@@ -205,7 +211,7 @@ Then to include it in the overlay:
 make overlay mnist=true
 ```
 
-There is an example of usage of mnist in the Jupyter Notebook in the `pynq/noteboks` folder. Copy it to PYNQ board's Notebooks folder. 
+There is an example of usage of mnist in the Jupyter Notebook in the `pynq/noteboks` folder. Copy it to PYNQ board's Notebooks folder. For a live feed infernece `rvsda_server.ipynb` can be used.
 ---
 
 ## Using the Overlay on PYNQ
@@ -224,6 +230,21 @@ ol = Overlay("RVSDA.bit")
 ```
 
 The firmware binaries can be loaded into the NPU’s instruction memory via the AXI‑Lite interface (refer to the NPU driver code in `firmware/npu.c`).
+
+### Real‑time camera inference
+
+The repository includes two scripts for live inference from a webcam:
+
+
+- **On PYNQ** – copy the `pynq/notebooks/rvsda_server.ipynb` Jupyter notebook to your PYNQ board and run it. The notebook loads the overlay, preloads the MNIST weights, and starts a TCP server that listens for incoming images on port `12345`.
+
+- **On your laptop** – run the client:
+  ```bash
+  python3 host/camera_client.py
+  ```
+  It captures frames from your camera, preprocesses them to 28×28 MNIST format, sends them over Ethernet to the PYNQ, and displays the predicted digit on the video feed.
+
+**Prerequisites**: Install `opencv-python` and `numpy` on your laptop (`pip install opencv-python numpy`). Adjust the `PYNQ_IP` variable in `camera_client.py` to match your board’s IP address.
 
 ---
 

@@ -35,3 +35,4 @@ NPU_CLOSURE_TEST/
 *.npy
 *.npz
 *.pb
+rtl/RVSDA_vexriscv_experimental.sv
