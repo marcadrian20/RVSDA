@@ -44,7 +44,7 @@ _boot:
 # sw   t1, 0(t0)      # Store Word: contents of t1 go to address (t0 + 0)
 
     # jal ra, main
-call main 
+
     
 # la t0, __bss_start
 # la t1, __bss_end
@@ -56,6 +56,8 @@ call main
 # _bss_done:
 #     li t0, 0
 #     li t1, 0
+
+call main 
 
 
 # If main returns, hang forever

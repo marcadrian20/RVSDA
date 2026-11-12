@@ -40,6 +40,8 @@ if {![info exists ::ACC_WIDTH]}        { set ::ACC_WIDTH 24 }
 # Derive clock frequency from ACC_WIDTH
 if {$::ACC_WIDTH == 24} {
     set fclk_mhz 160
+} elseif {$::ACC_WIDTH == 16} {
+    set fclk_mhz 160
 } elseif {$::ACC_WIDTH == 32} {
     set fclk_mhz 140
 } else {

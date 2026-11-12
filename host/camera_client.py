@@ -9,7 +9,7 @@ import time
 
  
 # Ip Config for pynq
-PYNQ_IP = "192.168.1.104"
+PYNQ_IP = "192.168.2.99"
 PORT = 12345
 
 latencies = []
@@ -26,21 +26,21 @@ def prepare_image(frame):
     left = (w - size) // 2
     cropped = gray[top:top+size, left:left+size]
     
-    #Apply Adaptive Thresholding (handles shadows)
+    #Apply Adaptive Thresholding (handle shadows prod binary inv pic)
     thresh = cv2.adaptiveThreshold(
         cropped, 
         255, 
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-        cv2.THRESH_BINARY_INV, # Flips dark ink on white paper to white on black
+        cv2.THRESH_BINARY_INV, #Flip dark ink on white paper to white on black
         21, 
         4
     )
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    cleaned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
-    thickened = cv2.dilate(cleaned, kernel, iterations=2)
+    cleaned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel) #cleanup noise and artifs
+    thickened = cv2.dilate(cleaned, kernel, iterations=2) #compensate fr thin line/make lines tihcker
     #Resize the clean binary image to 28x28
     resized = cv2.resize(thickened, (28, 28), interpolation=cv2.INTER_AREA)
-    #Convert to float32 scaled between 0.0 and 1.0
+    #Convert to float32 scaled between 0.0 and 1.0, normalizare
     img_float = resized.astype(np.float32) / 255.0
     return img_float
 

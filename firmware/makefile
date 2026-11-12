@@ -3,7 +3,7 @@ LD      = riscv64-elf-ld
 OBJCOPY = riscv64-elf-objcopy
 OBJDUMP = riscv64-elf-objdump
 
-CFLAGS  = -march=rv32im -mabi=ilp32 -nostdlib -ffreestanding -Os
+CFLAGS  = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -ffreestanding -Os
 LDFLAGS = -m elf32lriscv -T linker.ld
 
 ifeq ($(TEST),)
@@ -31,7 +31,8 @@ all: $(HEX)
 	$(CC) $(CFLAGS) -c $< -o $@
 	
 $(ELF): $(OBJS)
-	$(CC) $(CFLAGS) -T linker.ld $(OBJS) -o $@
+	$(CC) $(CFLAGS) -T linker.ld $(OBJS) -lgcc -o $@ 
+# remove -lgcc for normal utilization, its just for trying to make vexriscv work
 
 $(BIN): $(ELF)
 	$(OBJCOPY) -O binary $< $@

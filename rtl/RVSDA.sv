@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module NPU #(
+module NPU__#(
     parameter ARRAY_SIZE = 8,
     parameter DATA_WIDTH = 8,
     parameter ACC_WIDTH = 32,

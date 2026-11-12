@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_npu_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="axi_vip_pkg" />
+            <top_module name="glbl" />
+            <top_module name="npu_bd_axi_vip_0_0_pkg" />
+            <top_module name="npu_bd_axi_vip_1_0_pkg" />
+            <top_module name="std" />
+            <top_module name="tb_npu" />
+            <top_module name="xil_common_vip_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="190,780.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="193,720.001 ns"></ZoomEndTime>
+      <Cursor1Time time="192,255.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="305"></NameColumnWidth>
+      <ValueColumnWidth column_width="131"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="91" />
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/clk_i">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/rst_n_i">
+      <obj_property name="ElementShortName">rst_n_i</obj_property>
+      <obj_property name="ObjectShortName">rst_n_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/inc_credit_i">
+      <obj_property name="ElementShortName">inc_credit_i</obj_property>
+      <obj_property name="ObjectShortName">inc_credit_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/dec_credit_i">
+      <obj_property name="ElementShortName">dec_credit_i</obj_property>
+      <obj_property name="ObjectShortName">dec_credit_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/credit_ready_o">
+      <obj_property name="ElementShortName">credit_ready_o</obj_property>
+      <obj_property name="ObjectShortName">credit_ready_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/credit_full_o">
+      <obj_property name="ElementShortName">credit_full_o</obj_property>
+      <obj_property name="ObjectShortName">credit_full_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/count_o">
+      <obj_property name="ElementShortName">count_o[6:0]</obj_property>
+      <obj_property name="ObjectShortName">count_o[6:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/count_reg">
+      <obj_property name="ElementShortName">count_reg[6:0]</obj_property>
+      <obj_property name="ObjectShortName">count_reg[6:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/MAX_CREDITS">
+      <obj_property name="ElementShortName">MAX_CREDITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MAX_CREDITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/INIT_COUNT">
+      <obj_property name="ElementShortName">INIT_COUNT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">INIT_COUNT[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/sync_unit/output_side_counter/BIT_WIDTH">
+      <obj_property name="ElementShortName">BIT_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BIT_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/output_buffer_rd_data_i">
+      <obj_property name="ElementShortName">output_buffer_rd_data_i[63:0]</obj_property>
+      <obj_property name="ObjectShortName">output_buffer_rd_data_i[63:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/output_buffer_rd_addr_o">
+      <obj_property name="ElementShortName">output_buffer_rd_addr_o[11:0]</obj_property>
+      <obj_property name="ObjectShortName">output_buffer_rd_addr_o[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/output_buffer_rd_en_o">
+      <obj_property name="ElementShortName">output_buffer_rd_en_o</obj_property>
+      <obj_property name="ObjectShortName">output_buffer_rd_en_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/descriptor_i">
+      <obj_property name="ElementShortName">descriptor_i[63:0]</obj_property>
+      <obj_property name="ObjectShortName">descriptor_i[63:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/descriptor_queue_empty_i">
+      <obj_property name="ElementShortName">descriptor_queue_empty_i</obj_property>
+      <obj_property name="ObjectShortName">descriptor_queue_empty_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/descriptor_queue_pop_o">
+      <obj_property name="ElementShortName">descriptor_queue_pop_o</obj_property>
+      <obj_property name="ObjectShortName">descriptor_queue_pop_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/push_token_o">
+      <obj_property name="ElementShortName">push_token_o</obj_property>
+      <obj_property name="ObjectShortName">push_token_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/output_buffer_ready_i">
+      <obj_property name="ElementShortName">output_buffer_ready_i</obj_property>
+      <obj_property name="ObjectShortName">output_buffer_ready_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/en_i">
+      <obj_property name="ElementShortName">en_i</obj_property>
+      <obj_property name="ObjectShortName">en_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/done_o">
+      <obj_property name="ElementShortName">done_o</obj_property>
+      <obj_property name="ObjectShortName">done_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/busy_o">
+      <obj_property name="ElementShortName">busy_o</obj_property>
+      <obj_property name="ObjectShortName">busy_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/error_o">
+      <obj_property name="ElementShortName">error_o</obj_property>
+      <obj_property name="ObjectShortName">error_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_ACLK">
+      <obj_property name="ElementShortName">M_AXI_ACLK</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_ACLK</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_ARESETN">
+      <obj_property name="ElementShortName">M_AXI_ARESETN</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_ARESETN</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWVALID">
+      <obj_property name="ElementShortName">M_AXI_AWVALID</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWVALID</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWREADY">
+      <obj_property name="ElementShortName">M_AXI_AWREADY</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWREADY</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWID">
+      <obj_property name="ElementShortName">M_AXI_AWID[0:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWID[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWADDR">
+      <obj_property name="ElementShortName">M_AXI_AWADDR[31:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWADDR[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWLEN">
+      <obj_property name="ElementShortName">M_AXI_AWLEN[7:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWLEN[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWSIZE">
+      <obj_property name="ElementShortName">M_AXI_AWSIZE[2:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWSIZE[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWBURST">
+      <obj_property name="ElementShortName">M_AXI_AWBURST[1:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWBURST[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWLOCK">
+      <obj_property name="ElementShortName">M_AXI_AWLOCK</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWLOCK</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWCACHE">
+      <obj_property name="ElementShortName">M_AXI_AWCACHE[3:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWCACHE[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWPROT">
+      <obj_property name="ElementShortName">M_AXI_AWPROT[2:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWPROT[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_AWQOS">
+      <obj_property name="ElementShortName">M_AXI_AWQOS[3:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_AWQOS[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_WVALID">
+      <obj_property name="ElementShortName">M_AXI_WVALID</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_WVALID</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_WREADY">
+      <obj_property name="ElementShortName">M_AXI_WREADY</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_WREADY</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_WDATA">
+      <obj_property name="ElementShortName">M_AXI_WDATA[63:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_WDATA[63:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_WSTRB">
+      <obj_property name="ElementShortName">M_AXI_WSTRB[7:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_WSTRB[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_WLAST">
+      <obj_property name="ElementShortName">M_AXI_WLAST</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_WLAST</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_BVALID">
+      <obj_property name="ElementShortName">M_AXI_BVALID</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_BVALID</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_BREADY">
+      <obj_property name="ElementShortName">M_AXI_BREADY</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_BREADY</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_BID">
+      <obj_property name="ElementShortName">M_AXI_BID[0:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_BID[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/M_AXI_BRESP">
+      <obj_property name="ElementShortName">M_AXI_BRESP[1:0]</obj_property>
+      <obj_property name="ObjectShortName">M_AXI_BRESP[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/internal_buff_src_addr_reg">
+      <obj_property name="ElementShortName">internal_buff_src_addr_reg[11:0]</obj_property>
+      <obj_property name="ObjectShortName">internal_buff_src_addr_reg[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/axi_mem_dst_addr_reg">
+      <obj_property name="ElementShortName">axi_mem_dst_addr_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">axi_mem_dst_addr_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/transfer_len_reg">
+      <obj_property name="ElementShortName">transfer_len_reg[12:0]</obj_property>
+      <obj_property name="ObjectShortName">transfer_len_reg[12:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/burst_len">
+      <obj_property name="ElementShortName">burst_len[7:0]</obj_property>
+      <obj_property name="ObjectShortName">burst_len[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/outstanding_writes_counter">
+      <obj_property name="ElementShortName">outstanding_writes_counter[12:0]</obj_property>
+      <obj_property name="ObjectShortName">outstanding_writes_counter[12:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/descriptor_load_flag">
+      <obj_property name="ElementShortName">descriptor_load_flag</obj_property>
+      <obj_property name="ObjectShortName">descriptor_load_flag</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/start_transaction_flag">
+      <obj_property name="ElementShortName">start_transaction_flag</obj_property>
+      <obj_property name="ObjectShortName">start_transaction_flag</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/unit_ready">
+      <obj_property name="ElementShortName">unit_ready</obj_property>
+      <obj_property name="ObjectShortName">unit_ready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/busy">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/done">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/error">
+      <obj_property name="ElementShortName">error</obj_property>
+      <obj_property name="ObjectShortName">error</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/transfer_finished">
+      <obj_property name="ElementShortName">transfer_finished</obj_property>
+      <obj_property name="ObjectShortName">transfer_finished</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/zero_transfer_len_flag">
+      <obj_property name="ElementShortName">zero_transfer_len_flag</obj_property>
+      <obj_property name="ObjectShortName">zero_transfer_len_flag</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/buffer_stall">
+      <obj_property name="ElementShortName">buffer_stall</obj_property>
+      <obj_property name="ObjectShortName">buffer_stall</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/current_state">
+      <obj_property name="ElementShortName">current_state[1:0]</obj_property>
+      <obj_property name="ObjectShortName">current_state[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/next_transfer_len">
+      <obj_property name="ElementShortName">next_transfer_len[12:0]</obj_property>
+      <obj_property name="ObjectShortName">next_transfer_len[12:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/beat_counter">
+      <obj_property name="ElementShortName">beat_counter[8:0]</obj_property>
+      <obj_property name="ObjectShortName">beat_counter[8:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/burst_len_tracking_fifo_rdata">
+      <obj_property name="ElementShortName">burst_len_tracking_fifo_rdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">burst_len_tracking_fifo_rdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/burst_len_tracking_fifo_full">
+      <obj_property name="ElementShortName">burst_len_tracking_fifo_full</obj_property>
+      <obj_property name="ObjectShortName">burst_len_tracking_fifo_full</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/burst_len_tracking_fifo_empty">
+      <obj_property name="ElementShortName">burst_len_tracking_fifo_empty</obj_property>
+      <obj_property name="ObjectShortName">burst_len_tracking_fifo_empty</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/burst_len_tracking_fifo_pop">
+      <obj_property name="ElementShortName">burst_len_tracking_fifo_pop</obj_property>
+      <obj_property name="ObjectShortName">burst_len_tracking_fifo_pop</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/internal_wvalid">
+      <obj_property name="ElementShortName">internal_wvalid</obj_property>
+      <obj_property name="ObjectShortName">internal_wvalid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/internal_wready">
+      <obj_property name="ElementShortName">internal_wready</obj_property>
+      <obj_property name="ObjectShortName">internal_wready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/internal_wpayload">
+      <obj_property name="ElementShortName">internal_wpayload[64:0]</obj_property>
+      <obj_property name="ObjectShortName">internal_wpayload[64:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/skid_out_valid">
+      <obj_property name="ElementShortName">skid_out_valid</obj_property>
+      <obj_property name="ObjectShortName">skid_out_valid</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/skid_out_payload">
+      <obj_property name="ElementShortName">skid_out_payload[64:0]</obj_property>
+      <obj_property name="ObjectShortName">skid_out_payload[64:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/burst_active">
+      <obj_property name="ElementShortName">burst_active</obj_property>
+      <obj_property name="ObjectShortName">burst_active</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/start_next_burst">
+      <obj_property name="ElementShortName">start_next_burst</obj_property>
+      <obj_property name="ObjectShortName">start_next_burst</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/internal_wlast_lookahead">
+      <obj_property name="ElementShortName">internal_wlast_lookahead</obj_property>
+      <obj_property name="ObjectShortName">internal_wlast_lookahead</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/internal_wlast_reg">
+      <obj_property name="ElementShortName">internal_wlast_reg</obj_property>
+      <obj_property name="ObjectShortName">internal_wlast_reg</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/internal_wdata_reg">
+      <obj_property name="ElementShortName">internal_wdata_reg[63:0]</obj_property>
+      <obj_property name="ObjectShortName">internal_wdata_reg[63:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/bram_data_valid">
+      <obj_property name="ElementShortName">bram_data_valid</obj_property>
+      <obj_property name="ObjectShortName">bram_data_valid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/last_beat_pipelined">
+      <obj_property name="ElementShortName">last_beat_pipelined</obj_property>
+      <obj_property name="ObjectShortName">last_beat_pipelined</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/last_read_address_reached">
+      <obj_property name="ElementShortName">last_read_address_reached</obj_property>
+      <obj_property name="ObjectShortName">last_read_address_reached</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/push_token_reg">
+      <obj_property name="ElementShortName">push_token_reg</obj_property>
+      <obj_property name="ObjectShortName">push_token_reg</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/BRAM_ADDR_WIDTH">
+      <obj_property name="ElementShortName">BRAM_ADDR_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BRAM_ADDR_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/C_M_AXI_DATA_WIDTH">
+      <obj_property name="ElementShortName">C_M_AXI_DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">C_M_AXI_DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/C_M_AXI_ADDR_WIDTH">
+      <obj_property name="ElementShortName">C_M_AXI_ADDR_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">C_M_AXI_ADDR_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/C_M_AXI_ID_WIDTH">
+      <obj_property name="ElementShortName">C_M_AXI_ID_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">C_M_AXI_ID_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/AXI_WRITE_ID">
+      <obj_property name="ElementShortName">AXI_WRITE_ID</obj_property>
+      <obj_property name="ObjectShortName">AXI_WRITE_ID</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/ADDRLSB">
+      <obj_property name="ElementShortName">ADDRLSB[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDRLSB[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/BYTE_SIZE_LOG">
+      <obj_property name="ElementShortName">BYTE_SIZE_LOG[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BYTE_SIZE_LOG[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/VALID_ADDR_WIDTH">
+      <obj_property name="ElementShortName">VALID_ADDR_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">VALID_ADDR_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/INCR_MODE">
+      <obj_property name="ElementShortName">INCR_MODE[1:0]</obj_property>
+      <obj_property name="ObjectShortName">INCR_MODE[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/OKAY_RESPONSE">
+      <obj_property name="ElementShortName">OKAY_RESPONSE[1:0]</obj_property>
+      <obj_property name="ObjectShortName">OKAY_RESPONSE[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_npu/DUT/npu_bd_i/RVSDA_0/inst/npu/axi_master_lsu/axi_store_unit/MAX_BURST_BEATS">
+      <obj_property name="ElementShortName">MAX_BURST_BEATS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MAX_BURST_BEATS[31:0]</obj_property>
+   </wvobject>
+</wave_config>

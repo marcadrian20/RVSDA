@@ -17,6 +17,7 @@ int main()
     while((NPU_SLV_AXI->CTRL & (1<<1))==0)
         ;
     mat_mul_extensive_test(axi_ddr_base);
+    // npu_lsu_enable_channel(1, 1);
     npu_tiled_matmul(NPU_ACTIVATION_BASE + 32, NPU_WEIGHT_BASE + 32, NPU_OUTPUT_BASE + 32, axi_ddr_base + 0x300, axi_ddr_base + 0x400, axi_ddr_base + 0x500, 16, 16, 16, 1, POOL_BYPASS);
     npu_tiled_matmul(NPU_ACTIVATION_BASE + 32, NPU_WEIGHT_BASE + 32, NPU_OUTPUT_BASE + 32, axi_ddr_base + 0x800, axi_ddr_base + 0xA40, axi_ddr_base + 0xC80, 24, 24, 24, 1, POOL_BYPASS);
     simple_matrix_mult_test(axi_ddr_base);

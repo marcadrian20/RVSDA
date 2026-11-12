@@ -40,7 +40,7 @@ SECTIONS
     _stack_top = ORIGIN(BRAM) + LENGTH(BRAM);
 /* ── Safety check ───────────────────────────────────────── *
      * Catch the case where code + data grows into the stack.    *
-     * 64 bytes minimum headroom reserved for stack.             */
+     * 1024 bytes headroom reserved for stack.             */
     ASSERT(_end <= (_stack_top - 1024),
            "BRAM overflow: code+data too large, no room for stack!")
 }
