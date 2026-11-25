@@ -38,7 +38,8 @@ _boot:
     addi  x29, zero, 0
     addi  x30, zero, 0
     addi  x31, zero, 0
-
+    la t0, __bss_start
+    la t1, __bss_end
 # li   t0, 0x200      # Load immediate: t0 = 0x00000200
 # li   t1, 1          # Load immediate: t1 = 1
 # sw   t1, 0(t0)      # Store Word: contents of t1 go to address (t0 + 0)
@@ -46,18 +47,17 @@ _boot:
     # jal ra, main
 
     
-# la t0, __bss_start
-# la t1, __bss_end
-# _bss_zero:
-#     bgeu t0, t1, _bss_done
-#     sw zero, 0(t0)
-#     addi t0, t0, 4
-#     j _bss_zero
-# _bss_done:
-#     li t0, 0
-#     li t1, 0
+    /* Clear BSS */
+    
 
-call main 
+_bss_zero:
+    bgeu t0, t1, _bss_done
+    sw zero, 0(t0)
+    addi t0, t0, 4
+    j _bss_zero
+
+_bss_done:
+    call main
 
 
 # If main returns, hang forever

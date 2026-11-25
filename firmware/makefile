@@ -3,7 +3,7 @@ LD      = riscv64-elf-ld
 OBJCOPY = riscv64-elf-objcopy
 OBJDUMP = riscv64-elf-objdump
 
-CFLAGS  = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -ffreestanding -Os
+CFLAGS  = -march=rv32i_zmmul -mabi=ilp32 -nostdlib -ffreestanding -O2
 LDFLAGS = -m elf32lriscv -T linker.ld
 
 ifeq ($(TEST),)

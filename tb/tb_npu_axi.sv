@@ -25,7 +25,7 @@ logic clk_100MHz;
 logic reset_rtl_0;
 
 initial clk_100MHz = 0;
-always #5 clk_100MHz = ~clk_100MHz;
+always #3.125 clk_100MHz = ~clk_100MHz;
 
 initial begin
     reset_rtl_0 = 0;
@@ -890,7 +890,7 @@ initial begin
     slv_agent.start_slave();
 
     @(posedge reset_rtl_0);
-    repeat(5) @(posedge clk_100MHz);
+    repeat(3.125) @(posedge clk_100MHz);
 
 
     preload_matrix();
@@ -905,7 +905,10 @@ initial begin
     wait (r_beats > 0 || w_beats > 0);
     wait_for_quiet(.quiet_threshold(10000), .hard_timeout(500_000));
 
-
+    $display("credits act=%0d wgt=%0d out=%0d",
+  `NPU.inst.npu.sync_unit.act_side_counter.count_reg,
+  `NPU.inst.npu.sync_unit.weight_side_counter.count_reg,
+  `NPU.inst.npu.sync_unit.output_side_counter.count_reg);
     print_traffic_summary();
     A_tiles[0] = MATRIX_16x16_A_T0;
     A_tiles[1] = MATRIX_16x16_A_T1;

@@ -11,7 +11,9 @@ firmware/firmware.*
 *.bit
 *.bin
 /build/
- 
+*.bak
+*.wcfg
+*.dump
 *.cache/
 *.hw/
 *.ip_user_files/
@@ -36,4 +38,3 @@ NPU_CLOSURE_TEST/
 *.npz
 *.pb
 *.odt
-rtl/RVSDA_vexriscv_experimental.sv

@@ -1,7 +1,7 @@
 module Credit_Counter#(
     parameter MAX_CREDITS = 2,
     parameter INIT_COUNT = 0,
-    parameter BIT_WIDTH = $clog2(MAX_CREDITS)
+    parameter BIT_WIDTH = $clog2(MAX_CREDITS+1)
 )(
     input logic clk_i,
     input logic rst_n_i,
@@ -30,7 +30,7 @@ module Credit_Counter#(
         end
     end
 
-    assign credit_ready_o = (count_reg > 0);
-    assign credit_full_o = (count_reg == MAX_CREDITS); 
+    assign credit_ready_o = !(count_reg == 0);
+    assign credit_full_o = (count_reg == BIT_WIDTH'(MAX_CREDITS)); 
     assign count_o = count_reg;
 endmodule

@@ -21,11 +21,12 @@
 
 int main()
 {
-    uint32_t axi_ddr_base = npu_get_ddr_base();
     npu_init();
+    uint32_t axi_ddr_base = npu_get_ddr_base();
     while (1)
     {
         wait_start();
+        // clear_status();//just to test it, added on 22/11/26
         conv_pooled(NPU_ACTIVATION_BASE,
                     NPU_WEIGHT_BASE,
                     NPU_OUTPUT_BASE,
@@ -51,6 +52,7 @@ int main()
             FC_M0,
             FC_SHIFT
         );
+        mem_fence();
         signal_done();
     }
     while (1)
